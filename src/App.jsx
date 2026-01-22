@@ -5,10 +5,10 @@ import './App.css'
 const dashboardData = {
   campaign: {
     name: 'Aadhar MBU Campaign',
-    totalMessages: 100,
-    delivered: 90,
-    flowCompleted: 40,
-    notCompleted: 30,
+    totalMessages: 150000,
+    delivered: 100000,
+    flowCompleted: 50000,
+    notCompleted: 50000,
     mbuYes: 25,
     mbuNo: 15
   },
