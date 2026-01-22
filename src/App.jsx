@@ -147,7 +147,7 @@ const Icons = {
 }
 
 // Circular Progress component for MBU stats
-function CircularProgress({ percentage, size = 160, strokeWidth = 12 }) {
+function CircularProgress({ percentage, size = 140, strokeWidth = 10 }) {
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (percentage / 100) * circumference
@@ -155,7 +155,7 @@ function CircularProgress({ percentage, size = 160, strokeWidth = 12 }) {
   return (
     <svg width={size} height={size} className="response-chart-svg">
       <circle
-        stroke="rgba(255,255,255,0.1)"
+        stroke="#e2e8f0"
         fill="none"
         strokeWidth={strokeWidth}
         r={radius}
@@ -163,7 +163,7 @@ function CircularProgress({ percentage, size = 160, strokeWidth = 12 }) {
         cy={size / 2}
       />
       <circle
-        stroke="url(#gradient)"
+        stroke="#6366f1"
         fill="none"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
@@ -174,12 +174,6 @@ function CircularProgress({ percentage, size = 160, strokeWidth = 12 }) {
         cy={size / 2}
         style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%', transition: 'stroke-dashoffset 1s ease-out' }}
       />
-      <defs>
-        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#667eea" />
-          <stop offset="100%" stopColor="#764ba2" />
-        </linearGradient>
-      </defs>
     </svg>
   )
 }
@@ -246,13 +240,13 @@ function App() {
     const duration = 1500
     const steps = 60
     const interval = duration / steps
-    
+
     let step = 0
     const timer = setInterval(() => {
       step++
       const progress = step / steps
       const easeOut = 1 - Math.pow(1 - progress, 3)
-      
+
       setAnimatedValues({
         sent: Math.round(data.campaign.totalMessages * easeOut),
         delivered: Math.round(data.campaign.delivered * easeOut),
@@ -260,7 +254,7 @@ function App() {
         mbuNo: Math.round(data.campaign.mbuNo * easeOut),
         notCompleted: Math.round(data.campaign.notCompleted * easeOut)
       })
-      
+
       if (step >= steps) clearInterval(timer)
     }, interval)
 
@@ -283,11 +277,11 @@ function App() {
         </div>
         <div className="header-right">
           <div className="header-date">
-            {new Date().toLocaleDateString('en-IN', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            {new Date().toLocaleDateString('en-IN', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}
           </div>
         </div>
@@ -342,7 +336,7 @@ function App() {
             </div>
             <span className="card-badge">Real-time</span>
           </div>
-          
+
           <div className="flow-chart">
             {/* Row 1: Sent to Delivered */}
             <div className="flow-row">
@@ -396,7 +390,7 @@ function App() {
               MBU Response Status
             </div>
           </div>
-          
+
           {/* Circular Chart */}
           <div className="response-chart">
             <CircularProgress percentage={Math.round((data.campaign.mbuYes / data.campaign.flowCompleted) * 100)} />
@@ -462,7 +456,7 @@ function App() {
           </div>
           <div className="levels-table">
             {data.botLevels.userInput.map((level, index) => (
-              <LevelRow 
+              <LevelRow
                 key={index}
                 level={level.level}
                 branch={level.branch}
@@ -485,7 +479,7 @@ function App() {
           </div>
           <div className="levels-table">
             {data.botLevels.nonUserInput.map((level, index) => (
-              <LevelRow 
+              <LevelRow
                 key={index}
                 level={level.level}
                 branch={level.branch}
