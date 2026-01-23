@@ -565,7 +565,7 @@ function DashboardPage({ data, animatedValues }) {
       </div>
 
       {/* Bottom Grid */}
-      <div className="bottom-grid">
+      {/* <div className="bottom-grid">
         <div className="card">
           <div className="card-header">
             <div className="card-title">
@@ -610,7 +610,7 @@ function DashboardPage({ data, animatedValues }) {
             <div className="action-btn"><div className="action-icon"><Icons.Download /></div><span className="action-label">Export Data</span></div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Table */}
       <div className="card" style={{ marginTop: '1rem' }}>
@@ -656,11 +656,11 @@ function App() {
 
   const navItems = [
     { id: 'dashboard', icon: Icons.Home, label: 'Dashboard' },
-    { id: 'campaigns', icon: Icons.Broadcast, label: 'Campaigns' },
-    { id: 'bot', icon: Icons.Bot, label: 'BOT Flows' },
+    // { id: 'campaigns', icon: Icons.Broadcast, label: 'Campaigns' },
+    // { id: 'bot', icon: Icons.Bot, label: 'BOT Flows' },
     { id: 'users', icon: Icons.Users, label: 'Users' },
-    { id: 'analytics', icon: Icons.BarChart, label: 'Analytics' },
-    { id: 'settings', icon: Icons.Settings, label: 'Settings' }
+    // { id: 'analytics', icon: Icons.BarChart, label: 'Analytics' },
+    // { id: 'settings', icon: Icons.Settings, label: 'Settings' }
   ]
 
   useEffect(() => {

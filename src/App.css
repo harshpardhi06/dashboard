@@ -310,11 +310,13 @@
   grid-template-columns: 1.5fr 1fr;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  /* height: 50%; */
 }
 
 @media (max-width: 1200px) {
   .content-grid {
     grid-template-columns: 1fr;
+    
   }
 }
 
@@ -324,6 +326,7 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   padding: 1.25rem;
+  height: auto;
 }
 
 .card-header {
@@ -344,7 +347,7 @@
 
 .card-title-icon {
   width: 32px;
-  height: 32px;
+  height: 16px;
   background: var(--gradient-primary);
   border-radius: var(--radius-sm);
   display: flex;
