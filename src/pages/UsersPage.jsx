@@ -47,10 +47,10 @@ export function UsersPage() {
 
             {/* Stats Summary */}
             <div className="stats-grid">
-                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length} change="+5 this week" changeType="positive" type="sent" />
-                <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} change="60% completion" changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} change="Active users" changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Not Completed" value={usersData.filter(u => u.mbuStatus === 'failed').length} change="Need follow-up" changeType="negative" type="failed" />
+                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length}  changeType="positive" type="sent" />
+                <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} changeType="positive" type="delivered" />
+                <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" />
+                <StatCard icon={Icons.XCircle} label="Not Completed" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
             </div>
 
             {/* Users Table Card */}

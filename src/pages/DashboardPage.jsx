@@ -28,10 +28,10 @@ export function DashboardPage({ data, animatedValues }) {
 
             {/* Stats */}
             <div className="stats-grid">
-                <StatCard icon={Icons.Send} label="Messages Sent" value={animatedValues.sent} change="+12% from last week" changeType="positive" type="sent" />
-                <StatCard icon={Icons.Check} label="Delivered" value={animatedValues.delivered} change={`${deliveryRate}% delivery rate`} changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="Flow Completed" value={data.campaign.flowCompleted} change={`${completionRate}% completion`} changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Not Completed" value={animatedValues.notCompleted} change="Incomplete flows" changeType="negative" type="failed" />
+                <StatCard icon={Icons.Send} label="Messages Sent" value={animatedValues.sent}  changeType="positive" type="sent" />
+                <StatCard icon={Icons.Check} label="Delivered" value={animatedValues.delivered}  changeType="positive" type="delivered" />
+                <StatCard icon={Icons.Eye} label="Flow Completed" value={data.campaign.flowCompleted}  changeType="positive" type="read" />
+                <StatCard icon={Icons.XCircle} label="Not Completed" value={animatedValues.notCompleted}  changeType="negative" type="failed" />
             </div>
 
             <header className="header">
@@ -48,10 +48,10 @@ export function DashboardPage({ data, animatedValues }) {
 
             {/* Stats Summary */}
             <div className="stats-grid">
-                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length} change="+5 this week" changeType="positive" type="sent" />
-                <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} change="60% completion" changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} change="Active users" changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Not Completed" value={usersData.filter(u => u.mbuStatus === 'failed').length} change="Need follow-up" changeType="negative" type="failed" />
+                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length} changeType="positive" type="sent" />
+                <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} changeType="positive" type="delivered" />
+                <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" />
+                <StatCard icon={Icons.XCircle} label="Not Completed" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
             </div>
 
 
