@@ -2,6 +2,7 @@ import { Icons } from '../components/Icons'
 import { StatCard } from '../components/StatCard'
 import { FlowNode } from '../components/FlowNode'
 import { CircularProgress } from '../components/CircularProgress'
+import { usersData } from '../data/mockData'
 
 export function DashboardPage({ data, animatedValues }) {
     const deliveryRate = Math.round((data.campaign.delivered / data.campaign.totalMessages) * 100)
@@ -32,6 +33,27 @@ export function DashboardPage({ data, animatedValues }) {
                 <StatCard icon={Icons.Eye} label="Flow Completed" value={data.campaign.flowCompleted} change={`${completionRate}% completion`} changeType="positive" type="read" />
                 <StatCard icon={Icons.XCircle} label="Not Completed" value={animatedValues.notCompleted} change="Incomplete flows" changeType="negative" type="failed" />
             </div>
+
+            <header className="header">
+                <div className="header-left">
+                    <h1>User Management</h1>
+                    <p>Manage Aadhar MBU campaign users</p>
+                </div>
+                <div className="header-right">
+                    <div className="header-date">
+                        {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                </div>
+            </header>
+
+            {/* Stats Summary */}
+            <div className="stats-grid">
+                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length} change="+5 this week" changeType="positive" type="sent" />
+                <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} change="60% completion" changeType="positive" type="delivered" />
+                <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} change="Active users" changeType="positive" type="read" />
+                <StatCard icon={Icons.XCircle} label="Not Completed" value={usersData.filter(u => u.mbuStatus === 'failed').length} change="Need follow-up" changeType="negative" type="failed" />
+            </div>
+
 
             {/* Content Grid */}
             <div className="content-grid">
