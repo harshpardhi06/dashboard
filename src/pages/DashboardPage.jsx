@@ -28,10 +28,10 @@ export function DashboardPage({ data, animatedValues }) {
 
             {/* Stats */}
             <div className="stats-grid">
-                <StatCard icon={Icons.Send} label="Messages Sent" value={animatedValues.sent}  changeType="positive" type="sent" />
-                <StatCard icon={Icons.Check} label="Delivered" value={animatedValues.delivered}  changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="Flow Completed" value={data.campaign.flowCompleted}  changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Not Completed" value={animatedValues.notCompleted}  changeType="negative" type="failed" />
+                <StatCard icon={Icons.Send} label="Messages Sent" value={animatedValues.sent} changeType="positive" type="sent" />
+                <StatCard icon={Icons.Check} label="Delivered" value={animatedValues.delivered} changeType="positive" type="delivered" />
+                <StatCard icon={Icons.Eye} label="Read" value={animatedValues.read} changeType="positive" type="read" />
+                <StatCard icon={Icons.XCircle} label="Failed" value={animatedValues.failed} changeType="negative" type="failed" />
             </div>
 
             <header className="header">
@@ -50,8 +50,8 @@ export function DashboardPage({ data, animatedValues }) {
             <div className="stats-grid">
                 <StatCard icon={Icons.Users} label="Total Users" value={usersData.length} changeType="positive" type="sent" />
                 <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Not Completed" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
+                {/* <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" /> */}
+                <StatCard icon={Icons.XCircle} label="Pending" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
             </div>
 
 
@@ -143,6 +143,85 @@ export function DashboardPage({ data, animatedValues }) {
                                 <div className="legend-color not-complete"></div>
                                 <span className="legend-text">Incomplete</span>
                                 <span className="legend-value">{data.campaign.notCompleted}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="content-grid" style={{ marginTop: '1.5rem' }}>
+                {/* Communication Breakdown */}
+                <div className="card">
+                    <div className="card-header">
+                        <div className="card-title">
+                            <div className="card-title-icon"><Icons.Globe /></div>
+                            Communication Breakdown
+                        </div>
+                    </div>
+                    <div className="breakdown-grid">
+                        <div className="breakdown-section">
+                            <h4 className="section-subtitle">Language Wise</h4>
+                            <div className="legend-item">
+                                <span className="legend-text">English</span>
+                                <span className="legend-value">{data.campaign.languages.english.toLocaleString()}</span>
+                            </div>
+                            <div className="legend-item">
+                                <span className="legend-text">Hindi</span>
+                                <span className="legend-value">{data.campaign.languages.hindi.toLocaleString()}</span>
+                            </div>
+                            <div className="legend-item">
+                                <span className="legend-text">Marathi</span>
+                                <span className="legend-value">{data.campaign.languages.marathi.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        <div className="breakdown-section">
+                            <h4 className="section-subtitle">By Date & Format</h4>
+                            <div className="legend-item">
+                                <span className="legend-text">Formal Delivery</span>
+                                <span className="legend-value">{data.campaign.formats.formal.toLocaleString()}</span>
+                            </div>
+                            <div className="legend-item">
+                                <span className="legend-text">Informal Delivery</span>
+                                <span className="legend-value">{data.campaign.formats.informal.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Reminders & Assets */}
+                <div className="card">
+                    <div className="card-header">
+                        <div className="card-title">
+                            <div className="card-title-icon"><Icons.Bell /></div>
+                            Reminders & Assets
+                        </div>
+                    </div>
+                    <div className="mbu-grid">
+                        <div className="mbu-card yes">
+                            <div className="mbu-value">{animatedValues.remindersSent.toLocaleString()}</div>
+                            <div className="mbu-label">Reminders Sent</div>
+                        </div>
+                        <div className="mbu-card no">
+                            <div className="mbu-value">{animatedValues.remindersPushed.toLocaleString()}</div>
+                            <div className="mbu-label">Reminders Pushed</div>
+                        </div>
+                        <div className="mbu-card not-completed">
+                            <div className="mbu-value">{animatedValues.remindersProgramYes.toLocaleString()}</div>
+                            <div className="mbu-label">Reminders Program - Yes Flow</div>
+                        </div>
+                    </div>
+                    <div className="sidebar-section" style={{ marginTop: '1.5rem' }}>
+                        <h4 className="section-subtitle">Asset Delivery</h4>
+                        <div className="legend">
+                            <div className="legend-item">
+                                <div className="legend-color mbu-yes"></div>
+                                <span className="legend-text">Video Pushed</span>
+                                <span className="legend-value">{data.campaign.assetsPushed.video.toLocaleString()}</span>
+                            </div>
+                            <div className="legend-item">
+                                <div className="legend-color mbu-no"></div>
+                                <span className="legend-text">Poster Pushed</span>
+                                <span className="legend-value">{data.campaign.assetsPushed.poster.toLocaleString()}</span>
                             </div>
                         </div>
                     </div>

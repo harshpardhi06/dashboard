@@ -9,7 +9,8 @@ function App() {
   const [data] = useState(dashboardData)
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [animatedValues, setAnimatedValues] = useState({
-    sent: 0, delivered: 0, mbuYes: 0, mbuNo: 0, notCompleted: 0
+    sent: 0, delivered: 0, read: 0, failed: 0, mbuYes: 0, mbuNo: 0,
+    notCompleted: 0, remindersSent: 0, remindersPushed: 0, remindersProgramYes: 0
   })
 
   const navItems = [
@@ -29,9 +30,14 @@ function App() {
       setAnimatedValues({
         sent: Math.round(data.campaign.totalMessages * easeOut),
         delivered: Math.round(data.campaign.delivered * easeOut),
+        read: Math.round(data.campaign.read * easeOut),
+        failed: Math.round(data.campaign.failed * easeOut),
         mbuYes: Math.round(data.campaign.mbuYes * easeOut),
         mbuNo: Math.round(data.campaign.mbuNo * easeOut),
-        notCompleted: Math.round(data.campaign.notCompleted * easeOut)
+        notCompleted: Math.round(data.campaign.notCompleted * easeOut),
+        remindersSent: Math.round(data.campaign.remindersSent * easeOut),
+        remindersPushed: Math.round(data.campaign.remindersPushed * easeOut),
+        remindersProgramYes: Math.round(data.campaign.remindersProgramYes * easeOut),
       })
       if (step >= steps) clearInterval(timer)
     }, interval)

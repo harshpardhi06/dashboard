@@ -456,6 +456,10 @@
   margin-left: 2.5rem;
 }
 
+.branch-container .branch-item {
+  grid-column: 2;
+}
+
 .branch-item {
   display: flex;
   align-items: center;
@@ -583,6 +587,28 @@
   color: var(--text-muted);
   font-weight: 500;
   margin-top: 0.25rem;
+}
+
+/* Breakdown Grid */
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.breakdown-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-subtitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
 }
 
 /* Response Chart */

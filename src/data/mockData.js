@@ -4,10 +4,18 @@ export const dashboardData = {
     name: 'Aadhar MBU Campaign',
     totalMessages: 150000,
     delivered: 100000,
+    read: 85000,
+    failed: 15000,
     flowCompleted: 50000,
     notCompleted: 50000,
-    mbuYes: 25,
-    mbuNo: 15
+    mbuYes: 12500,
+    mbuNo: 7500,
+    languages: { english: 45000, hindi: 85000, marathi: 20000 },
+    formats: { formal: 90000, informal: 60000 },
+    remindersProgramYes: 12000,
+    remindersSent: 25000,
+    remindersPushed: 22000,
+    assetsPushed: { video: 15000, poster: 35000 }
   },
   botLevels: {
     userInput: [

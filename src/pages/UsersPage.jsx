@@ -9,7 +9,7 @@ export function UsersPage() {
 
     const filteredUsers = usersData.filter(user => {
         const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.phone.includes(searchTerm) ||
+            user.phone.includes(searchTerm) ||    
             user.location.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesFilter = filterStatus === 'all' || user.mbuStatus === filterStatus
         return matchesSearch && matchesFilter
@@ -49,8 +49,8 @@ export function UsersPage() {
             <div className="stats-grid">
                 <StatCard icon={Icons.Users} label="Total Users" value={usersData.length}  changeType="positive" type="sent" />
                 <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Not Completed" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
+                {/* <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" /> */}
+                <StatCard icon={Icons.XCircle} label="Pending" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
             </div>
 
             {/* Users Table Card */}
@@ -60,7 +60,7 @@ export function UsersPage() {
                         <div className="card-title-icon"><Icons.Users /></div>
                         All Users
                     </div>
-                    <div className="table-actions">
+                    <div className="table-actions"> 
                         <div className="search-box">
                             <Icons.Search />
                             <input
@@ -76,9 +76,11 @@ export function UsersPage() {
                             onChange={(e) => setFilterStatus(e.target.value)}
                         >
                             <option value="all">All Status</option>
+                            {/* <option value="active">Sent</option> */}
+                            {/* <option value="pending">Delivered</option> */}
                             <option value="completed">Completed</option>
                             <option value="pending">Pending</option>
-                            <option value="failed">Failed</option>
+                            {/* <option value="failed">Failed</option> */}
                         </select>
                         <button className="btn-primary">
                             <Icons.PlusCircle />
