@@ -8,6 +8,7 @@ import { usersData } from '../data/mockData'
 export function DashboardPage({ data, animatedValues }) {
     const [templateFilter, setTemplateFilter] = useState('All')
     const [languageFilter, setLanguageFilter] = useState('All')
+    const [dateFilter, setDateFilter] = useState('')
 
     const deliveryRate = Math.round((data.campaign.delivered / data.campaign.totalMessages) * 100)
     const completionRate = Math.round((data.campaign.flowCompleted / data.campaign.delivered) * 100)
@@ -15,6 +16,7 @@ export function DashboardPage({ data, animatedValues }) {
     const filteredCampaigns = data.recentCampaigns
         .filter(c => (templateFilter === 'All' || c.templateName === templateFilter))
         .filter(c => (languageFilter === 'All' || c.language === languageFilter))
+        .filter(c => (dateFilter === '' || c.date === dateFilter))
         .sort((a, b) => new Date(b.date) - new Date(a.date))
 
     return (
@@ -50,6 +52,13 @@ export function DashboardPage({ data, animatedValues }) {
                         Campaign History
                     </div>
                     <div className="table-actions">
+                        <input
+                            type="date"
+                            className="filter-select"
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                            title="Filter by Date"
+                        />
                         <select
                             className="filter-select"
                             value={languageFilter}
@@ -68,6 +77,16 @@ export function DashboardPage({ data, animatedValues }) {
                             <option value="Formal">Formal</option>
                             <option value="Informal">Informal</option>
                         </select>
+                        {dateFilter && (
+                            <button
+                                className="icon-btn"
+                                onClick={() => setDateFilter('')}
+                                title="Clear date selection"
+                                style={{ height: '38px', padding: '0 10px' }}
+                            >
+                                <Icons.XCircle size={14} />
+                            </button>
+                        )}
                     </div>
                 </div>
                 <table className="campaign-table">
@@ -293,7 +312,7 @@ export function DashboardPage({ data, animatedValues }) {
                         </div>
                     </div>
                     <div className="mbu-grid">
-                        <div className="mbu-card not-completed">
+                        <div className="mbu-card not-completed" style={{ gridColumn: 'span 2' }}>
                             <div className="mbu-value">{animatedValues.remindersProgramYes.toLocaleString()}</div>
                             <div className="mbu-label">Reminders Opted - Yes</div>
                         </div>
