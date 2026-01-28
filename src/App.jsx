@@ -1,22 +1,27 @@
 import { useState, useEffect } from 'react'
 import { Icons } from './components/Icons'
-import { dashboardData } from './data/mockData'
+import { dashboardData, usersData } from './data/mockData'
 import { DashboardPage } from './pages/DashboardPage'
 import { UsersPage } from './pages/UsersPage'
 import './App.css'
+
+const navItems = [
+  { id: 'dashboard', icon: Icons.Home, label: 'Dashboard' },
+  { id: 'users', icon: Icons.Users, label: 'Users' },
+]
 
 function App() {
   const [data] = useState(dashboardData)
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [animatedValues, setAnimatedValues] = useState({
     sent: 0, delivered: 0, read: 0, failed: 0, mbuYes: 0, mbuNo: 0,
-    notCompleted: 0, remindersSent: 0, remindersPushed: 0, remindersProgramYes: 0
+    notCompleted: 0, remindersSent: 0, remindersPushed: 0, remindersProgramYes: 0,
+    remindersDelivered: 0, remindersRead: 0,
+    eng: 0, hin: 0, mar: 0,
+    formalTotal: 0, formalEng: 0, formalHin: 0,
+    informalTotal: 0, informalEng: 0, informalHin: 0,
+    video: 0, poster: 0
   })
-
-  const navItems = [
-    { id: 'dashboard', icon: Icons.Home, label: 'Dashboard' },
-    { id: 'users', icon: Icons.Users, label: 'Users' },
-  ]
 
   useEffect(() => {
     const duration = 1500
@@ -37,7 +42,20 @@ function App() {
         notCompleted: Math.round(data.campaign.notCompleted * easeOut),
         remindersSent: Math.round(data.campaign.remindersSent * easeOut),
         remindersPushed: Math.round(data.campaign.remindersPushed * easeOut),
+        remindersDelivered: Math.round(data.campaign.remindersDelivered * easeOut),
+        remindersRead: Math.round(data.campaign.remindersRead * easeOut),
         remindersProgramYes: Math.round(data.campaign.remindersProgramYes * easeOut),
+        eng: Math.round(data.campaign.languages.english * easeOut),
+        hin: Math.round(data.campaign.languages.hindi * easeOut),
+        mar: Math.round(data.campaign.languages.marathi * easeOut),
+        formalTotal: Math.round(data.campaign.formats.formal.total * easeOut),
+        formalEng: Math.round(data.campaign.formats.formal.english * easeOut),
+        formalHin: Math.round(data.campaign.formats.formal.hindi * easeOut),
+        informalTotal: Math.round(data.campaign.formats.informal.total * easeOut),
+        informalEng: Math.round(data.campaign.formats.informal.english * easeOut),
+        informalHin: Math.round(data.campaign.formats.informal.hindi * easeOut),
+        video: Math.round(data.campaign.assetsPushed.video * easeOut),
+        poster: Math.round(data.campaign.assetsPushed.poster * easeOut),
       })
       if (step >= steps) clearInterval(timer)
     }, interval)

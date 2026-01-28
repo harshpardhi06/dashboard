@@ -28,10 +28,10 @@ export function DashboardPage({ data, animatedValues }) {
 
             {/* Stats */}
             <div className="stats-grid">
-                <StatCard icon={Icons.Send} label="Messages Sent" value={animatedValues.sent} changeType="positive" type="sent" />
-                <StatCard icon={Icons.Check} label="Delivered" value={animatedValues.delivered} changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="Read" value={animatedValues.read} changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Failed" value={animatedValues.failed} changeType="negative" type="failed" />
+                <StatCard icon={Icons.Send} label="Sent Messages" value={animatedValues.sent} changeType="positive" type="sent" />
+                <StatCard icon={Icons.Check} label="Delivered Messages" value={animatedValues.delivered} changeType="positive" type="delivered" />
+                <StatCard icon={Icons.Eye} label="Read Messages" value={animatedValues.read} changeType="positive" type="read" />
+                <StatCard icon={Icons.XCircle} label="Failed Messages" value={animatedValues.failed} changeType="negative" type="failed" />
             </div>
 
             <header className="header">
@@ -132,17 +132,17 @@ export function DashboardPage({ data, animatedValues }) {
                             <div className="legend-item">
                                 <div className="legend-color mbu-yes"></div>
                                 <span className="legend-text">MBU Accepted</span>
-                                <span className="legend-value">{data.campaign.mbuYes}</span>
+                                <span className="legend-value">{animatedValues.mbuYes}</span>
                             </div>
                             <div className="legend-item">
                                 <div className="legend-color mbu-no"></div>
                                 <span className="legend-text">MBU Rejected</span>
-                                <span className="legend-value">{data.campaign.mbuNo}</span>
+                                <span className="legend-value">{animatedValues.mbuNo}</span>
                             </div>
                             <div className="legend-item">
                                 <div className="legend-color not-complete"></div>
                                 <span className="legend-text">Incomplete</span>
-                                <span className="legend-value">{data.campaign.notCompleted}</span>
+                                <span className="legend-value">{animatedValues.notCompleted}</span>
                             </div>
                         </div>
                     </div>
@@ -163,26 +163,51 @@ export function DashboardPage({ data, animatedValues }) {
                             <h4 className="section-subtitle">Language Wise</h4>
                             <div className="legend-item">
                                 <span className="legend-text">English</span>
-                                <span className="legend-value">{data.campaign.languages.english.toLocaleString()}</span>
+                                <span className="legend-value">{animatedValues.eng.toLocaleString()}</span>
                             </div>
                             <div className="legend-item">
                                 <span className="legend-text">Hindi</span>
-                                <span className="legend-value">{data.campaign.languages.hindi.toLocaleString()}</span>
+                                <span className="legend-value">{animatedValues.hin.toLocaleString()}</span>
                             </div>
-                            <div className="legend-item">
-                                <span className="legend-text">Marathi</span>
-                                <span className="legend-value">{data.campaign.languages.marathi.toLocaleString()}</span>
-                            </div>
+
                         </div>
                         <div className="breakdown-section">
                             <h4 className="section-subtitle">By Date & Format</h4>
-                            <div className="legend-item">
-                                <span className="legend-text">Formal Delivery</span>
-                                <span className="legend-value">{data.campaign.formats.formal.toLocaleString()}</span>
+                            <div className="format-group">
+                                <div className="legend-item">
+                                    <span className="legend-text">Formal Delivery</span>
+                                    <span className="legend-value">{animatedValues.formalTotal.toLocaleString()}</span>
+                                </div>
+                                <div className="format-sub-items">
+                                    <div className="sub-item">
+                                        <div className="branch-dot" style={{ width: 6, height: 6, background: 'var(--accent-blue)' }}></div>
+                                        <span className="sub-text">English</span>
+                                        <span className="sub-value">{animatedValues.formalEng.toLocaleString()}</span>
+                                    </div>
+                                    <div className="sub-item">
+                                        <div className="branch-dot" style={{ width: 6, height: 6, background: 'var(--accent-blue)' }}></div>
+                                        <span className="sub-text">Hindi</span>
+                                        <span className="sub-value">{animatedValues.formalHin.toLocaleString()}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="legend-item">
-                                <span className="legend-text">Informal Delivery</span>
-                                <span className="legend-value">{data.campaign.formats.informal.toLocaleString()}</span>
+                            <div className="format-group">
+                                <div className="legend-item">
+                                    <span className="legend-text">Informal Delivery</span>
+                                    <span className="legend-value">{animatedValues.informalTotal.toLocaleString()}</span>
+                                </div>
+                                <div className="format-sub-items">
+                                    <div className="sub-item">
+                                        <div className="branch-dot" style={{ width: 6, height: 6, background: 'var(--accent-indigo)' }}></div>
+                                        <span className="sub-text">English</span>
+                                        <span className="sub-value">{animatedValues.informalEng.toLocaleString()}</span>
+                                    </div>
+                                    <div className="sub-item">
+                                        <div className="branch-dot" style={{ width: 6, height: 6, background: 'var(--accent-indigo)' }}></div>
+                                        <span className="sub-text">Hindi</span>
+                                        <span className="sub-value">{animatedValues.informalHin.toLocaleString()}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -205,26 +230,34 @@ export function DashboardPage({ data, animatedValues }) {
                             <div className="mbu-value">{animatedValues.remindersPushed.toLocaleString()}</div>
                             <div className="mbu-label">Reminders Pushed</div>
                         </div>
+                        <div className="mbu-card delivered">
+                            <div className="mbu-value">{animatedValues.remindersDelivered.toLocaleString()}</div>
+                            <div className="mbu-label">Reminders Delivered</div>
+                        </div>
+                        <div className="mbu-card read">
+                            <div className="mbu-value">{animatedValues.remindersRead.toLocaleString()}</div>
+                            <div className="mbu-label">Reminders Read</div>
+                        </div>
                         <div className="mbu-card not-completed">
                             <div className="mbu-value">{animatedValues.remindersProgramYes.toLocaleString()}</div>
-                            <div className="mbu-label">Reminders Program - Yes Flow</div>
+                            <div className="mbu-label">Reminders Opted - Yes</div>
                         </div>
                     </div>
-                    <div className="sidebar-section" style={{ marginTop: '1.5rem' }}>
+                    {/* <div className="sidebar-section" style={{ marginTop: '1.5rem' }}>
                         <h4 className="section-subtitle">Asset Delivery</h4>
                         <div className="legend">
                             <div className="legend-item">
                                 <div className="legend-color mbu-yes"></div>
                                 <span className="legend-text">Video Pushed</span>
-                                <span className="legend-value">{data.campaign.assetsPushed.video.toLocaleString()}</span>
+                                <span className="legend-value">{animatedValues.video.toLocaleString()}</span>
                             </div>
                             <div className="legend-item">
                                 <div className="legend-color mbu-no"></div>
                                 <span className="legend-text">Poster Pushed</span>
-                                <span className="legend-value">{data.campaign.assetsPushed.poster.toLocaleString()}</span>
+                                <span className="legend-value">{animatedValues.poster.toLocaleString()}</span>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 

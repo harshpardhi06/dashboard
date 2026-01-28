@@ -6,13 +6,15 @@ import { usersData } from '../data/mockData'
 export function UsersPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [filterStatus, setFilterStatus] = useState('all')
+    const [filterLanguage, setFilterLanguage] = useState('all')
 
     const filteredUsers = usersData.filter(user => {
         const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.phone.includes(searchTerm) ||    
+            user.phone.includes(searchTerm) ||
             user.location.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesFilter = filterStatus === 'all' || user.mbuStatus === filterStatus
-        return matchesSearch && matchesFilter
+        const matchesStatus = filterStatus === 'all' || user.mbuStatus === filterStatus
+        const matchesLanguage = filterLanguage === 'all' || user.language.toLowerCase() === filterLanguage
+        return matchesSearch && matchesStatus && matchesLanguage
     })
 
     const getStatusBadgeClass = (status) => {
@@ -47,7 +49,7 @@ export function UsersPage() {
 
             {/* Stats Summary */}
             <div className="stats-grid">
-                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length}  changeType="positive" type="sent" />
+                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length} changeType="positive" type="sent" />
                 <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} changeType="positive" type="delivered" />
                 {/* <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" /> */}
                 <StatCard icon={Icons.XCircle} label="Pending" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
@@ -60,7 +62,7 @@ export function UsersPage() {
                         <div className="card-title-icon"><Icons.Users /></div>
                         All Users
                     </div>
-                    <div className="table-actions"> 
+                    <div className="table-actions">
                         <div className="search-box">
                             <Icons.Search />
                             <input
@@ -72,15 +74,21 @@ export function UsersPage() {
                         </div>
                         <select
                             className="filter-select"
+                            value={filterLanguage}
+                            onChange={(e) => setFilterLanguage(e.target.value)}
+                        >
+                            <option value="all">All Languages</option>
+                            <option value="english">English</option>
+                            <option value="hindi">Hindi</option>
+                        </select>
+                        <select
+                            className="filter-select"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
                         >
                             <option value="all">All Status</option>
-                            {/* <option value="active">Sent</option> */}
-                            {/* <option value="pending">Delivered</option> */}
                             <option value="completed">Completed</option>
                             <option value="pending">Pending</option>
-                            {/* <option value="failed">Failed</option> */}
                         </select>
                         <button className="btn-primary">
                             <Icons.PlusCircle />
@@ -96,6 +104,7 @@ export function UsersPage() {
                             <th>Phone</th>
                             <th>Aadhar</th>
                             <th>Location</th>
+                            <th>Language</th>
                             <th>MBU Status</th>
                             <th>Flow Status</th>
                             <th>Last Active</th>
@@ -124,6 +133,7 @@ export function UsersPage() {
                                         {user.location}
                                     </div>
                                 </td>
+                                <td>{user.language}</td>
                                 <td>
                                     <span className={`status-badge ${getStatusBadgeClass(user.mbuStatus)}`}>
                                         {user.mbuStatus.charAt(0).toUpperCase() + user.mbuStatus.slice(1)}
