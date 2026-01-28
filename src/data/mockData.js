@@ -9,14 +9,14 @@ export const dashboardData = {
     notCompleted: 64800,
     mbuYes: 42600,
     mbuNo: 24300,
+    mbuNotNow: 18300,
     languages: { 
       english: 55000, 
       hindi: 75000, 
-      marathi: 20000 
     },
     formats: { 
       formal: { total: 95000, english: 42000, hindi: 53000 }, 
-      informal: { total: 55000, english: 13000, hindi: 42000 } 
+      informal: { total: 55000, english: 13000, hindi: 22000 } 
     },
     remindersProgramYes: 38500,
     remindersSent: 125000,
@@ -39,9 +39,11 @@ export const dashboardData = {
     ]
   },
   recentCampaigns: [
-    { id: 1, name: 'MBU Awareness Drive', status: 'active', sent: 5000, delivered: 4750, response: '68%' },
-    { id: 2, name: 'Plan Info Broadcast', status: 'completed', sent: 3200, delivered: 3100, response: '72%' },
-    { id: 3, name: 'Location Update', status: 'pending', sent: 1500, delivered: 0, response: '-' }
+    { id: 1, date: '2026-01-25', name: 'MBU Awareness Drive', language: 'Hindi', templateName: 'Formal', total: 52000, sent: 50000, delivered: 48000, read: 35000, failed: 2000 },
+    { id: 2, date: '2026-01-25', name: 'MBU Awareness Drive', language: 'English', templateName: 'Formal', total: 52000, sent: 50000, delivered: 48000, read: 35000, failed: 2000  },
+    { id: 3, date: '2026-01-22', name: 'Plan Info Broadcast', language: 'English', templateName: 'Informal', total: 31000, sent: 30000, delivered: 29000, read: 22000, failed: 1000},
+    { id: 4, date: '2026-01-18', name: 'Renewal Reminder', language: 'Hindi', templateName: 'Formal', total: 26000, sent: 25000, delivered: 24000, read: 18000, failed: 1000 },
+    { id: 5, date: '2026-01-15', name: 'Greeting Campaign', language: 'English', templateName: 'Informal', total: 16000, sent: 15000, delivered: 14500, read: 11000, failed: 500 },
   ]
 }
 
@@ -93,7 +95,7 @@ export const usersData = Array.from({ length: 40 }, (_, i) => {
     isRead,
     isFailed,
     isReminderSent: i % 4 === 0,
-    isReminderPushed: i % 4 === 1,
+    isReminderFailed: i % 4 === 1,
     isReminderProgramYes: flowStatus === 'MBU - Yes' && i % 3 === 0,
     assetType: i % 5 === 0 ? 'video' : (i % 5 === 2 ? 'poster' : 'none')
   };

@@ -543,6 +543,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
+
 }
 
 .mbu-card {
@@ -567,8 +568,7 @@
   border-color: rgba(239, 68, 68, 0.3);
 }
 
-.mbu-card.not-completed {
-  grid-column: span 2;
+.mbu-card.not-now {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(234, 179, 8, 0.08) 100%);
   border-color: rgba(245, 158, 11, 0.3);
 }
@@ -586,7 +586,7 @@
 .mbu-card.yes .mbu-value { color: var(--accent-green); }
 .mbu-card.no .mbu-value { color: var(--accent-red); }
 .mbu-card.read .mbu-value { color: var(--accent-blue); }
-.mbu-card.not-completed .mbu-value { color: var(--accent-amber); }
+.mbu-card.not-now .mbu-value { color: var(--accent-amber); }
 
 .mbu-label {
   font-size: 0.8125rem;

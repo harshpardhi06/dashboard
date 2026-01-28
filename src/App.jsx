@@ -15,7 +15,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [animatedValues, setAnimatedValues] = useState({
     sent: 0, delivered: 0, read: 0, failed: 0, mbuYes: 0, mbuNo: 0,
-    notCompleted: 0, remindersSent: 0, remindersPushed: 0, remindersProgramYes: 0,
+    notNow: 0, remindersSent: 0, remindersPushed: 0, remindersProgramYes: 0,
     remindersDelivered: 0, remindersRead: 0,
     eng: 0, hin: 0, mar: 0,
     formalTotal: 0, formalEng: 0, formalHin: 0,
@@ -39,7 +39,7 @@ function App() {
         failed: Math.round(data.campaign.failed * easeOut),
         mbuYes: Math.round(data.campaign.mbuYes * easeOut),
         mbuNo: Math.round(data.campaign.mbuNo * easeOut),
-        notCompleted: Math.round(data.campaign.notCompleted * easeOut),
+        notNow: Math.round(data.campaign.mbuNotNow * easeOut),
         remindersSent: Math.round(data.campaign.remindersSent * easeOut),
         remindersPushed: Math.round(data.campaign.remindersPushed * easeOut),
         remindersDelivered: Math.round(data.campaign.remindersDelivered * easeOut),
