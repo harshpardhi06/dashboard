@@ -846,10 +846,16 @@
   color: var(--text-secondary);
 }
 
-/* Campaign Table */
+.table-container {
+  overflow-x: auto;
+  margin: 0 -1.25rem; /* Offset card padding */
+  padding: 0 1.25rem;
+}
+
 .campaign-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 900px;
 }
 
 .campaign-table th {
@@ -872,6 +878,7 @@
 
 .campaign-table tbody tr {
   transition: all var(--transition-fast);
+  
 }
 
 .campaign-table tbody tr:hover {
