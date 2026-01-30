@@ -3,6 +3,7 @@ import { Icons } from './components/Icons'
 import { dashboardData, usersData } from './data/mockData'
 import { DashboardPage } from './pages/DashboardPage'
 import { UsersPage } from './pages/UsersPage'
+import { LoginPage } from './pages/LoginPage'
 import './App.css'
 
 const navItems = [
@@ -11,6 +12,7 @@ const navItems = [
 ]
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [data] = useState(dashboardData)
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [animatedValues, setAnimatedValues] = useState({
@@ -62,6 +64,18 @@ function App() {
     return () => clearInterval(timer)
   }, [data])
 
+  const handleLogin = () => {
+    setIsLoggedIn(true)
+  }
+
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+  }
+
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={handleLogin} />
+  }
+
   return (
     <div className="dashboard">
       {/* Sidebar */}
@@ -91,11 +105,14 @@ function App() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-profile">
+          <div className="user-profile" onClick={handleLogout} title="Click to logout">
             <div className="user-avatar">AD</div>
             <div className="user-info">
               <div className="user-name">Admin User</div>
               <div className="user-role">Administrator</div>
+            </div>
+            <div className="logout-icon" style={{ marginLeft: 'auto', opacity: 0.6 }}>
+              <Icons.Home /> {/* Using an icon as a placeholder for logout if specific logout icon is missing */}
             </div>
           </div>
         </div>

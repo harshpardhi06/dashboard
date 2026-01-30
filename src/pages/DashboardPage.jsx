@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Icons } from '../components/Icons'
 import { StatCard } from '../components/StatCard'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 
 export function DashboardPage({ data, animatedValues }) {
     const [templateFilter, setTemplateFilter] = useState('All')
@@ -15,6 +16,44 @@ export function DashboardPage({ data, animatedValues }) {
         .filter(c => (languageFilter === 'All' || c.language === languageFilter))
         .filter(c => (dateFilter === '' || c.date === dateFilter))
         .sort((a, b) => new Date(b.date) - new Date(a.date))
+
+    const mbuTotal = data.campaign.mbuYes + data.campaign.mbuNo + data.campaign.mbuNotNow
+    const mbuResponseRate = ((mbuTotal / data.campaign.delivered) * 100).toFixed(1)
+
+    const reminderTotal = data.campaign.remindersSent
+    const reminderDeliveryRate = ((data.campaign.remindersDelivered / reminderTotal) * 100).toFixed(1)
+
+    const chartData = [
+        { name: 'MBU Yes', value: data.campaign.mbuYes, color: '#10b981' },
+        { name: 'MBU No', value: data.campaign.mbuNo, color: '#ef4444' },
+        { name: 'Not Now', value: data.campaign.mbuNotNow, color: '#f59e0b' },
+    ]
+
+    const reminderChartData = [
+        { name: 'Read', value: data.campaign.remindersRead, color: '#0ea5e9' },
+        { name: 'Delivered', value: data.campaign.remindersDelivered - data.campaign.remindersRead, color: '#6366f1' },
+        { name: 'Failed', value: data.campaign.remindersSent - data.campaign.remindersDelivered, color: '#f43f5e' },
+    ]
+
+    const CustomTooltip = ({ active, payload, total }) => {
+        if (active && payload && payload.length) {
+            const currentTotal = total || mbuTotal
+            const percentage = ((payload[0].value / currentTotal) * 100).toFixed(1)
+            return (
+                <div className="custom-tooltip" style={{
+                    background: 'white',
+                    padding: '8px 12px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}>
+                    <p style={{ margin: 0, fontWeight: 600, color: '#1e293b' }}>{payload[0].name}</p>
+                    <p style={{ margin: 0, color: payload[0].payload.color, fontWeight: 700 }}>{payload[0].value.toLocaleString()} ({percentage}%)</p>
+                </div>
+            )
+        }
+        return null
+    }
 
     return (
         <>
@@ -147,23 +186,44 @@ export function DashboardPage({ data, animatedValues }) {
                         </div>
                     </div>
                     <div className="response-chart">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={chartData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={70}
+                                    outerRadius={100}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {chartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    content={<CustomTooltip />}
+                                    position={{ x: 210, y: 0 }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
                         <div className="response-chart-center">
-                            <div className="response-chart-value">{Math.round(data.campaign.mbuYes + data.campaign.mbuNo + data.campaign.mbuNotNow)} </div>
-                            <div className="response-chart-label">Total MBU Responses</div>
+                            <div className="response-chart-value">{mbuTotal.toLocaleString()}</div>
+                            <div className="response-chart-label" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-blue)', marginTop: '2px' }}>{mbuResponseRate}% Response</div>
                         </div>
                     </div>
                     <div className="mbu-grid">
                         <div className="mbu-card yes">
                             <div className="mbu-value">{animatedValues.mbuYes}</div>
-                            <div className="mbu-label">MBU - Yes</div>
+                            <div className="mbu-label">MBU - Yes ({((data.campaign.mbuYes / mbuTotal) * 100).toFixed(1)}%)</div>
                         </div>
                         <div className="mbu-card no">
                             <div className="mbu-value">{animatedValues.mbuNo}</div>
-                            <div className="mbu-label">MBU - No</div>
+                            <div className="mbu-label">MBU - No ({((data.campaign.mbuNo / mbuTotal) * 100).toFixed(1)}%)</div>
                         </div>
                         <div className="mbu-card not-now" style={{ gridColumn: 'span 2' }}>
                             <div className="mbu-value">{animatedValues.notNow}</div>
-                            <div className="mbu-label">Not Now</div>
+                            <div className="mbu-label">Not Now ({((data.campaign.mbuNotNow / mbuTotal) * 100).toFixed(1)}%)</div>
                         </div>
                     </div>
                 </div>
@@ -175,6 +235,33 @@ export function DashboardPage({ data, animatedValues }) {
                             Reminders & Assets
                         </div>
                     </div>
+                    <div className="response-chart">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={reminderChartData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={70}
+                                    outerRadius={100}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {reminderChartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    content={<CustomTooltip />}
+                                    position={{ x: 210, y: 0 }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        <div className="response-chart-center">
+                            <div className="response-chart-value">{reminderDeliveryRate}%</div>
+                            <div className="response-chart-label" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-blue)', marginTop: '2px' }}>Delivered</div>
+                        </div>
+                    </div>
                     <div className="mbu-grid">
                         <div className="mbu-card not-completed" style={{ gridColumn: 'span 2' }}>
                             <div className="mbu-value">{animatedValues.remindersProgramYes.toLocaleString()}</div>
@@ -182,19 +269,19 @@ export function DashboardPage({ data, animatedValues }) {
                         </div>
                         <div className="mbu-card yes">
                             <div className="mbu-value">{animatedValues.remindersSent.toLocaleString()}</div>
-                            <div className="mbu-label">Reminders Sent</div>
+                            <div className="mbu-label">Sent</div>
                         </div>
                         <div className="mbu-card no">
-                            <div className="mbu-value">{animatedValues.remindersPushed.toLocaleString()}</div>
-                            <div className="mbu-label">Reminders failed</div>
+                            <div className="mbu-value">{(data.campaign.remindersSent - data.campaign.remindersDelivered).toLocaleString()}</div>
+                            <div className="mbu-label">Failed</div>
                         </div>
                         <div className="mbu-card yes">
                             <div className="mbu-value">{animatedValues.remindersDelivered.toLocaleString()}</div>
-                            <div className="mbu-label">Reminders Delivered</div>
+                            <div className="mbu-label">Delivered</div>
                         </div>
                         <div className="mbu-card read">
                             <div className="mbu-value">{animatedValues.remindersRead.toLocaleString()}</div>
-                            <div className="mbu-label">Reminders Read</div>
+                            <div className="mbu-label">Read</div>
                         </div>
                     </div>
                 </div>
