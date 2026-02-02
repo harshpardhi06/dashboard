@@ -8,7 +8,7 @@ import './App.css'
 
 const navItems = [
   { id: 'dashboard', icon: Icons.Home, label: 'Dashboard' },
-  { id: 'users', icon: Icons.Users, label: 'Users' },
+  // { id: 'users', icon: Icons.Users, label: 'Users' },
 ]
 
 function App() {
