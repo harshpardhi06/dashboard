@@ -304,6 +304,43 @@
 .stat-card-change.positive { color: var(--accent-green); }
 .stat-card-change.negative { color: var(--accent-red); }
 
+/* Stat Card Breakdown */
+.stat-card-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.breakdown-item .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+}
+
+.breakdown-item .dot.formal { background: var(--accent-blue); }
+.breakdown-item .dot.informal { background: var(--accent-indigo); }
+
+.breakdown-item .label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.breakdown-item .value {
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-left: auto;
+}
+
 /* Content Grid */
 .content-grid {
   display: grid;
@@ -578,6 +615,11 @@
   border-color: rgba(14, 165, 233, 0.3);
 }
 
+.mbu-card.no-selection {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.08) 0%, rgba(71, 85, 105, 0.08) 100%);
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
 .mbu-value {
   font-size: 2rem;
   font-weight: 700;
@@ -587,6 +629,7 @@
 .mbu-card.no .mbu-value { color: var(--accent-red); }
 .mbu-card.read .mbu-value { color: var(--accent-blue); }
 .mbu-card.not-now .mbu-value { color: var(--accent-amber); }
+.mbu-card.no-selection .mbu-value { color: var(--text-muted); }
 
 .mbu-label {
   font-size: 0.8125rem;
@@ -1261,4 +1304,30 @@
 .coming-soon p {
   color: var(--text-muted);
   font-size: 0.9375rem;
+}
+
+/* Reminders Table Scrolling */
+.reminders-table-container {
+  max-height: 550px;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+}
+
+.reminders-table-container .campaign-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Logout Icon Styles */
+.logout-icon {
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  transition: all var(--transition-fast);
+}
+
+.user-profile:hover .logout-icon {
+  color: #f43f5e;
+  transform: translateX(2px);
 }

@@ -4,6 +4,7 @@ import { dashboardData, usersData } from './data/mockData'
 import { DashboardPage } from './pages/DashboardPage'
 import { UsersPage } from './pages/UsersPage'
 import { LoginPage } from './pages/LoginPage'
+import { logOut } from './users/authApi'
 import './App.css'
 
 const navItems = [
@@ -17,8 +18,12 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [animatedValues, setAnimatedValues] = useState({
     sent: 0, delivered: 0, read: 0, failed: 0, mbuYes: 0, mbuNo: 0,
-    notNow: 0, remindersSent: 0, remindersPushed: 0, remindersProgramYes: 0,
+    notNow: 0, mbuNoSelection: 0, remindersSent: 0, remindersPushed: 0, remindersProgramYes: 0,
     remindersDelivered: 0, remindersRead: 0,
+    sentFormal: 0, sentInformal: 0,
+    deliveredFormal: 0, deliveredInformal: 0,
+    readFormal: 0, readInformal: 0,
+    failedFormal: 0, failedInformal: 0,
     eng: 0, hin: 0, mar: 0,
     formalTotal: 0, formalEng: 0, formalHin: 0,
     informalTotal: 0, informalEng: 0, informalHin: 0,
@@ -36,12 +41,21 @@ function App() {
       const easeOut = 1 - Math.pow(1 - progress, 3)
       setAnimatedValues({
         sent: Math.round(data.campaign.totalMessages * easeOut),
+        sentFormal: Math.round(data.campaign.formats.formal.total * easeOut),
+        sentInformal: Math.round(data.campaign.formats.informal.total * easeOut),
         delivered: Math.round(data.campaign.delivered * easeOut),
+        deliveredFormal: Math.round((data.campaign.delivered * (data.campaign.formats.formal.total / data.campaign.totalMessages)) * easeOut),
+        deliveredInformal: Math.round((data.campaign.delivered * (data.campaign.formats.informal.total / data.campaign.totalMessages)) * easeOut),
         read: Math.round(data.campaign.read * easeOut),
+        readFormal: Math.round((data.campaign.read * (data.campaign.formats.formal.total / data.campaign.totalMessages)) * easeOut),
+        readInformal: Math.round((data.campaign.read * (data.campaign.formats.informal.total / data.campaign.totalMessages)) * easeOut),
         failed: Math.round(data.campaign.failed * easeOut),
+        failedFormal: Math.round((data.campaign.failed * (data.campaign.formats.formal.total / data.campaign.totalMessages)) * easeOut),
+        failedInformal: Math.round((data.campaign.failed * (data.campaign.formats.informal.total / data.campaign.totalMessages)) * easeOut),
         mbuYes: Math.round(data.campaign.mbuYes * easeOut),
         mbuNo: Math.round(data.campaign.mbuNo * easeOut),
         notNow: Math.round(data.campaign.mbuNotNow * easeOut),
+        mbuNoSelection: Math.round(data.campaign.mbuNoSelection * easeOut),
         remindersSent: Math.round(data.campaign.remindersSent * easeOut),
         remindersPushed: Math.round(data.campaign.remindersPushed * easeOut),
         remindersDelivered: Math.round(data.campaign.remindersDelivered * easeOut),
@@ -68,9 +82,19 @@ function App() {
     setIsLoggedIn(true)
   }
 
-  const handleLogout = () => {
-    setIsLoggedIn(false)
-  }
+  const handleLogout = async () => {
+    try {
+      await logOut();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+
+      setIsLoggedIn(false);
+      navigate('/login');
+    }
+  };
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />
@@ -111,8 +135,8 @@ function App() {
               <div className="user-name">Admin User</div>
               <div className="user-role">Administrator</div>
             </div>
-            <div className="logout-icon" style={{ marginLeft: 'auto', opacity: 0.6 }}>
-              <Icons.Home /> {/* Using an icon as a placeholder for logout if specific logout icon is missing */}
+            <div className="logout-icon" style={{ marginLeft: 'auto' }}>
+              <Icons.LogOut />
             </div>
           </div>
         </div>

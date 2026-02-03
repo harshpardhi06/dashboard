@@ -7,6 +7,9 @@ export function DashboardPage({ data, animatedValues }) {
     const [templateFilter, setTemplateFilter] = useState('All')
     const [languageFilter, setLanguageFilter] = useState('All')
     const [dateFilter, setDateFilter] = useState('')
+    const [reminderDateFilter, setReminderDateFilter] = useState('')
+    const [reminderLanguageFilter, setReminderLanguageFilter] = useState('All')
+    const [reminderTemplateFilter, setReminderTemplateFilter] = useState('All')
 
     const deliveryRate = Math.round((data.campaign.delivered / data.campaign.totalMessages) * 100)
     const completionRate = Math.round((data.campaign.flowCompleted / data.campaign.delivered) * 100)
@@ -17,7 +20,7 @@ export function DashboardPage({ data, animatedValues }) {
         .filter(c => (dateFilter === '' || c.date === dateFilter))
         .sort((a, b) => new Date(b.date) - new Date(a.date))
 
-    const mbuTotal = data.campaign.mbuYes + data.campaign.mbuNo + data.campaign.mbuNotNow
+    const mbuTotal = data.campaign.mbuYes + data.campaign.mbuNo + data.campaign.mbuNotNow + data.campaign.mbuNoSelection
     const mbuResponseRate = ((mbuTotal / data.campaign.delivered) * 100).toFixed(1)
 
     const reminderTotal = data.campaign.remindersSent
@@ -27,6 +30,7 @@ export function DashboardPage({ data, animatedValues }) {
         { name: 'MBU Yes', value: data.campaign.mbuYes, color: '#10b981' },
         { name: 'MBU No', value: data.campaign.mbuNo, color: '#ef4444' },
         { name: 'Not Now', value: data.campaign.mbuNotNow, color: '#f59e0b' },
+        { name: 'No Selection', value: data.campaign.mbuNoSelection, color: '#94a3b8' },
     ]
 
     const reminderChartData = [
@@ -55,6 +59,19 @@ export function DashboardPage({ data, animatedValues }) {
         return null
     }
 
+    const filteredReminders = data.recentReminders
+        .filter(reminder => {
+            if (reminderDateFilter && reminder.date !== reminderDateFilter) return false
+            if (reminderLanguageFilter !== 'All' && reminder.language !== reminderLanguageFilter) return false
+            if (reminderTemplateFilter !== 'All' && reminder.templateName !== reminderTemplateFilter) return false
+            return true
+        })
+        .sort((a, b) => {
+            const dateDiff = new Date(a.date) - new Date(b.date)
+            if (dateDiff !== 0) return dateDiff
+            return a.templateName.localeCompare(b.templateName) || a.language.localeCompare(b.language)
+        })
+
     return (
         <>
             <header className="header">
@@ -75,10 +92,42 @@ export function DashboardPage({ data, animatedValues }) {
 
             {/* Stats */}
             <div className="stats-grid">
-                <StatCard icon={Icons.Send} label="Sent Messages" value={animatedValues.sent} changeType="positive" type="sent" />
-                <StatCard icon={Icons.Check} label="Delivered Messages" value={animatedValues.delivered} changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="Read Messages" value={animatedValues.read} changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Failed Messages" value={animatedValues.failed} changeType="negative" type="failed" />
+                <StatCard
+                    icon={Icons.Send}
+                    label="Sent Messages"
+                    value={animatedValues.sent}
+                    changeType="positive"
+                    type="sent"
+                    formalValue={animatedValues.sentFormal}
+                    informalValue={animatedValues.sentInformal}
+                />
+                <StatCard
+                    icon={Icons.Check}
+                    label="Delivered Messages"
+                    value={animatedValues.delivered}
+                    changeType="positive"
+                    type="delivered"
+                    formalValue={animatedValues.deliveredFormal}
+                    informalValue={animatedValues.deliveredInformal}
+                />
+                <StatCard
+                    icon={Icons.Eye}
+                    label="Read Messages"
+                    value={animatedValues.read}
+                    changeType="positive"
+                    type="read"
+                    formalValue={animatedValues.readFormal}
+                    informalValue={animatedValues.readInformal}
+                />
+                <StatCard
+                    icon={Icons.XCircle}
+                    label="Failed Messages"
+                    value={animatedValues.failed}
+                    changeType="negative"
+                    type="failed"
+                    formalValue={animatedValues.failedFormal}
+                    informalValue={animatedValues.failedInformal}
+                />
             </div>
 
             <div className="card" style={{ marginTop: '1rem' }}>
@@ -158,6 +207,8 @@ export function DashboardPage({ data, animatedValues }) {
                 </div>
             </div>
 
+
+
             {/* <header className="header">
                 <div className="header-left">
                     <h1>User Management</h1>
@@ -225,6 +276,10 @@ export function DashboardPage({ data, animatedValues }) {
                             <div className="mbu-value">{animatedValues.notNow}</div>
                             <div className="mbu-label">Not Now ({((data.campaign.mbuNotNow / mbuTotal) * 100).toFixed(1)}%)</div>
                         </div>
+                        <div className="mbu-card no-selection" style={{ gridColumn: 'span 2' }}>
+                            <div className="mbu-value">{animatedValues.mbuNoSelection}</div>
+                            <div className="mbu-label">No Selection ({((data.campaign.mbuNoSelection / mbuTotal) * 100).toFixed(1)}%)</div>
+                        </div>
                     </div>
                 </div>
 
@@ -232,7 +287,7 @@ export function DashboardPage({ data, animatedValues }) {
                     <div className="card-header">
                         <div className="card-title">
                             <div className="card-title-icon"><Icons.Bell /></div>
-                            Reminders & Assets
+                            Reminders
                         </div>
                     </div>
                     <div className="response-chart">
@@ -287,7 +342,78 @@ export function DashboardPage({ data, animatedValues }) {
                 </div>
             </div>
 
-
+            <div className="card" style={{ marginTop: '1rem' }}>
+                <div className="card-header">
+                    <div className="card-title">
+                        <div className="card-title-icon"><Icons.Bell /></div>
+                        Reminders History
+                    </div>
+                    <div className="table-actions">
+                        <input
+                            type="date"
+                            className="filter-select"
+                            value={reminderDateFilter}
+                            onChange={(e) => setReminderDateFilter(e.target.value)}
+                        />
+                        <select
+                            className="filter-select"
+                            value={reminderLanguageFilter}
+                            onChange={(e) => setReminderLanguageFilter(e.target.value)}
+                        >
+                            <option value="All">All Languages</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="English">English</option>
+                        </select>
+                        <select
+                            className="filter-select"
+                            value={reminderTemplateFilter}
+                            onChange={(e) => setReminderTemplateFilter(e.target.value)}
+                        >
+                            <option value="All">All Templates</option>
+                            <option value="Formal">Formal</option>
+                            <option value="Informal">Informal</option>
+                        </select>
+                        {reminderDateFilter && (
+                            <button
+                                className="icon-btn"
+                                onClick={() => setReminderDateFilter('')}
+                                title="Clear date filter"
+                                style={{ height: '38px', padding: '0 10px' }}
+                            >
+                                <Icons.XCircle size={16} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+                <div className="table-container reminders-table-container">
+                    <table className="campaign-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Template</th>
+                                <th>Language</th>
+                                <th>Total Seclude</th>
+                                <th>Sent</th>
+                                <th>Delivered</th>
+                                <th>Failed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredReminders.map(reminder => (
+                                <tr key={reminder.id}>
+                                    <td className="date-cell">{reminder.date}</td>
+                                    <td style={{ fontWeight: 500 }}>{reminder.templateName}</td>
+                                    <td>{reminder.language}</td>
+                                    <td>{(reminder.total || 0).toLocaleString()}</td>
+                                    <td>{(reminder.sent || 0).toLocaleString()}</td>
+                                    <td>{reminder.delivered.toLocaleString()}</td>
+                                    <td>{(reminder.failed || 0).toLocaleString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </>
     )
 }

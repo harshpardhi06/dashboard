@@ -10,6 +10,7 @@ export const dashboardData = {
     mbuYes: 42600,
     mbuNo: 24300,
     mbuNotNow: 18300,
+    mbuNoSelection: 15600,
     languages: {
       english: 55000,
       hindi: 75000,
@@ -48,7 +49,17 @@ export const dashboardData = {
     { id: 6, date: '2026-01-22', name: 'Plan Info Broadcast', language: 'English', templateName: 'Formal', total: 42000, sent: 40000, delivered: 38000, read: 28000, failed: 2000 },
     { id: 7, date: '2026-01-22', name: 'Plan Info Broadcast', language: 'Hindi', templateName: 'Informal', total: 28000, sent: 27000, delivered: 26000, read: 19000, failed: 1000 },
     { id: 8, date: '2026-01-22', name: 'Plan Info Broadcast', language: 'English', templateName: 'Informal', total: 26000, sent: 25000, delivered: 24000, read: 18000, failed: 1000 },
-  ]
+  ],
+  recentReminders: Array.from({ length: 31 }, (_, i) => {
+    const day = String(i + 1).padStart(2, '0');
+    const date = `2026-01-${day}`;
+    return [
+      { id: i * 4 + 1, date, templateName: 'Formal', language: 'Hindi', total: 20000 + (i * 100), sent: 19500 + (i * 100), delivered: 18500 + (i * 100), failed: 500 },
+      { id: i * 4 + 2, date, templateName: 'Formal', language: 'English', total: 15000 + (i * 80), sent: 14500 + (i * 80), delivered: 13500 + (i * 80), failed: 500 },
+      { id: i * 4 + 3, date, templateName: 'Informal', language: 'Hindi', total: 10000 + (i * 50), sent: 9500 + (i * 50), delivered: 8500 + (i * 50), failed: 500 },
+      { id: i * 4 + 4, date, templateName: 'Informal', language: 'English', total: 8000 + (i * 40), sent: 7500 + (i * 40), delivered: 6500 + (i * 40), failed: 500 },
+    ];
+  }).flat()
 }
 
 // Helper to generate a larger set of users

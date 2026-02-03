@@ -1,15 +1,34 @@
 import React, { useState } from 'react';
 import './LoginPage.css';
+import { loginUser } from '../users/authApi';
 
 export const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   onLogin();
+  // };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, we would validate credentials here
-    onLogin();
+
+    try {
+      const res = await loginUser({
+        email,
+        password,
+      });
+
+      console.log('Login success:', res);
+      onLogin();
+
+    } catch (error) {
+      console.error('Login failed', error);
+    }
   };
+
 
   return (
     <div className="login-container">
