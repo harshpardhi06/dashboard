@@ -1,10 +1,13 @@
-import { Icons } from './Icons'
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
 export function StatCard({ icon: Icon, label, value, change, changeType, type, formalValue, informalValue }) {
     return (
         <div className={`stat-card ${type}`}>
             <div className="stat-card-header">
-                <div className="stat-card-icon"><Icon /></div>
+                <div className="stat-card-icon">
+                    {Icon && <Icon fontSize="medium" />}
+                </div>
                 <span className="stat-card-label">{label}</span>
             </div>
             <div className="stat-card-value">{value.toLocaleString()}</div>
@@ -24,10 +27,11 @@ export function StatCard({ icon: Icon, label, value, change, changeType, type, f
             )}
             {change && (
                 <div className={`stat-card-change ${changeType}`}>
-                    {changeType === 'positive' ? <Icons.TrendingUp /> : <Icons.TrendingDown />}
+                    {changeType === 'positive' ? <TrendingUpIcon /> : <TrendingDownIcon />}
                     <span>{change}</span>
                 </div>
             )}
         </div>
     )
 }
+

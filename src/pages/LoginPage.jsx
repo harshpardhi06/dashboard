@@ -22,6 +22,15 @@ export const LoginPage = ({ onLogin }) => {
       });
 
       console.log('Login success:', res);
+
+      if (res.token) {
+        localStorage.setItem('token', res.token);
+
+        // Extract and save user name
+        const name = res.user?.name || res.name || res.user?.firstName || email.split('@')[0];
+        localStorage.setItem('userName', name);
+      }
+
       onLogin();
 
     } catch (error) {

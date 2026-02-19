@@ -1,55 +1,5 @@
 export const dashboardData = {
-  campaign: {
-    name: 'Aadhar MBU Campaign (Large Scale)',
-    totalMessages: 150000,
-    delivered: 138500,
-    read: 112400,
-    failed: 11500,
-    flowCompleted: 85200,
-    notCompleted: 64800,
-    mbuYes: 42600,
-    mbuNo: 24300,
-    mbuNotNow: 18300,
-    mbuNoSelection: 15600,
-    languages: {
-      english: 55000,
-      hindi: 75000,
-    },
-    formats: {
-      formal: { total: 95000, english: 42000, hindi: 53000 },
-      informal: { total: 55000, english: 13000, hindi: 22000 }
-    },
-    remindersProgramYes: 38500,
-    remindersSent: 125000,
-    remindersPushed: 118000,
-    remindersDelivered: 110500,
-    remindersRead: 92400,
-    assetsPushed: { video: 45000, poster: 105000 }
-  },
-  botLevels: {
-    userInput: [
-      { level: 3, branch: 'info', type: 'button' },
-      { level: 4, branch: 'plandata', type: 'button' },
-      { level: 5, branch: 'infoPlan', type: 'button' },
-      { level: 5, branch: 'location', type: 'button' }
-    ],
-    nonUserInput: [
-      { level: 3, branch: 'close', type: 'readonly' },
-      { level: 6, branch: 'locationBtn', type: 'readonly' },
-      { level: 7, branch: 'Remainder', type: 'readonly' }
-    ]
-  },
-  recentCampaigns: [
-    { id: 1, date: '2026-01-25', name: 'MBU Awareness Drive', language: 'Hindi', templateName: 'Formal', total: 52000, sent: 50000, delivered: 48000, read: 35000, failed: 2000 },
-    { id: 2, date: '2026-01-25', name: 'MBU Awareness Drive', language: 'English', templateName: 'Formal', total: 48000, sent: 46000, delivered: 44000, read: 32000, failed: 2000 },
-    { id: 3, date: '2026-01-25', name: 'MBU Awareness Drive', language: 'Hindi', templateName: 'Informal', total: 35000, sent: 33000, delivered: 31000, read: 22000, failed: 2000 },
-    { id: 4, date: '2026-01-25', name: 'MBU Awareness Drive', language: 'English', templateName: 'Informal', total: 32000, sent: 30000, delivered: 28000, read: 19000, failed: 2000 },
 
-    { id: 5, date: '2026-01-22', name: 'Plan Info Broadcast', language: 'Hindi', templateName: 'Formal', total: 45000, sent: 43000, delivered: 41000, read: 30000, failed: 2000 },
-    { id: 6, date: '2026-01-22', name: 'Plan Info Broadcast', language: 'English', templateName: 'Formal', total: 42000, sent: 40000, delivered: 38000, read: 28000, failed: 2000 },
-    { id: 7, date: '2026-01-22', name: 'Plan Info Broadcast', language: 'Hindi', templateName: 'Informal', total: 28000, sent: 27000, delivered: 26000, read: 19000, failed: 1000 },
-    { id: 8, date: '2026-01-22', name: 'Plan Info Broadcast', language: 'English', templateName: 'Informal', total: 26000, sent: 25000, delivered: 24000, read: 18000, failed: 1000 },
-  ],
   recentReminders: Array.from({ length: 31 }, (_, i) => {
     const day = String(i + 1).padStart(2, '0');
     const date = `2026-01-${day}`;

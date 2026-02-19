@@ -1,48 +1,247 @@
-import { useState } from 'react'
-import { Icons } from '../components/Icons'
+import React, { useState, useEffect, useMemo } from 'react'
+import SearchIcon from '@mui/icons-material/Search';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SendIcon from '@mui/icons-material/Send';
+import CheckIcon from '@mui/icons-material/Check';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import CancelIcon from '@mui/icons-material/Cancel';
+import DescriptionIcon from '@mui/icons-material/Description';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { StatCard } from '../components/StatCard'
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { getMBUResponseCounts, getScheduleStatusHistory } from '../users/scheduleApi'
+import { getCampaignReport } from '../users/campaignApi'
 
-export function DashboardPage({ data, animatedValues }) {
+export function DashboardPage({ data, userName }) {
     const [templateFilter, setTemplateFilter] = useState('All')
     const [languageFilter, setLanguageFilter] = useState('All')
     const [dateFilter, setDateFilter] = useState('')
     const [reminderDateFilter, setReminderDateFilter] = useState('')
-    const [reminderLanguageFilter, setReminderLanguageFilter] = useState('All')
-    const [reminderTemplateFilter, setReminderTemplateFilter] = useState('All')
+    const [expandedDates, setExpandedDates] = useState(new Set())
+    const [campaigns, setCampaigns] = useState([]);
 
-    const deliveryRate = Math.round((data.campaign.delivered / data.campaign.totalMessages) * 100)
-    const completionRate = Math.round((data.campaign.flowCompleted / data.campaign.delivered) * 100)
+    const [mbuCounts, setMBUCounts] = useState({
+        yes: 0,
+        no: 0,
+        notNow: 0,
+        noSelection: 0,
+        failed: 0,
+        total: 0,
+    });
 
-    const filteredCampaigns = data.recentCampaigns
-        .filter(c => (templateFilter === 'All' || c.templateName === templateFilter))
-        .filter(c => (languageFilter === 'All' || c.language === languageFilter))
-        .filter(c => (dateFilter === '' || c.date === dateFilter))
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+    const [reminderHistory, setReminderHistory] = useState([]);
+    const [reminderStatusCounts, setReminderStatusCounts] = useState({
+        sent: 0,
+        delivered: 0,
+        read: 0,
+        failed: 0,
+        total: 0,
+        stat_date: "",
+        langcode: "",
+    });
 
-    const mbuTotal = data.campaign.mbuYes + data.campaign.mbuNo + data.campaign.mbuNotNow + data.campaign.mbuNoSelection
-    const mbuResponseRate = ((mbuTotal / data.campaign.delivered) * 100).toFixed(1)
 
-    const reminderTotal = data.campaign.remindersSent
-    const reminderDeliveryRate = ((data.campaign.remindersDelivered / reminderTotal) * 100).toFixed(1)
+    // Fetch schedule status history and format language codes for display
+    const fetchScheduleStatusCount = async () => {
+        try {
+            const res = await getScheduleStatusHistory();
 
-    const chartData = [
-        { name: 'MBU Yes', value: data.campaign.mbuYes, color: '#10b981' },
-        { name: 'MBU No', value: data.campaign.mbuNo, color: '#ef4444' },
-        { name: 'Not Now', value: data.campaign.mbuNotNow, color: '#f59e0b' },
-        { name: 'No Selection', value: data.campaign.mbuNoSelection, color: '#94a3b8' },
-    ]
+            if (res.success && Array.isArray(res.data)) {
 
-    const reminderChartData = [
-        { name: 'Read', value: data.campaign.remindersRead, color: '#0ea5e9' },
-        { name: 'Delivered', value: data.campaign.remindersDelivered - data.campaign.remindersRead, color: '#6366f1' },
-        { name: 'Failed', value: data.campaign.remindersSent - data.campaign.remindersDelivered, color: '#f43f5e' },
-    ]
+                const formattedData = res.data.map(item => {
+                    const lang = String(item.langcode ?? '')
+                        .toLowerCase()
+                        .trim();
+
+                    let displayLang = item.langcode;
+
+                    if (lang === 'hi' || lang === 'hindi') {
+                        displayLang = 'Hindi';
+                    } else if (lang === 'en' || lang === 'english') {
+                        displayLang = 'English';
+                    }
+
+                    return {
+                        ...item,
+                        langcode: displayLang   // 🔥 yaha replace kar diya
+                    };
+                });
+
+                setReminderHistory(formattedData);
+            }
+        } catch (err) {
+            console.error('Error fetching schedule status history:', err);
+        }
+    };
+
+    // Fetch MBU response counts and ensure numeric values with defaults
+    const fetchMBUResponseCounts = async () => {
+        try {
+            const res = await getMBUResponseCounts()
+
+            setMBUCounts({
+                yes: Number(res.data.yes) || 0,
+                no: Number(res.data.no) || 0,
+                notNow: Number(res.data.not_now) || 0,
+                noSelection: Number(res.data.no_selection) || 0,
+                failed: Number(res.data.failed) || 0,
+                total: Number(res.data.total) || 0,
+            })
+        } catch (error) {
+            console.error('MBU API ERROR', error)
+        }
+    }
+
+    // Fetch campaign report and map language codes to full names for display
+    const fetchCampaignReport = async () => {
+        try {
+            const res = await getCampaignReport();
+            console.log(res, "reportsdata")
+
+            // Map language codes to full names
+            const mappedRes = (res || []).map(c => {
+                const lang = String(c.langcode || '').toLowerCase().trim();
+                let displayLang = c.langcode;
+
+                if (lang === 'hi' || lang === 'hindi') {
+                    displayLang = 'Hindi';
+                } else if (lang === 'en' || lang === 'english') {
+                    displayLang = 'English';
+                }
+
+                return {
+                    ...c,
+                    langcode: displayLang
+                };
+            });
+
+            setCampaigns(mappedRes);
+        } catch (error) {
+            console.error('Campaign Report API ERROR', error);
+        }
+    };
+
+
+
+    useEffect(() => {
+        fetchMBUResponseCounts();
+        fetchCampaignReport();
+        fetchScheduleStatusCount();
+
+
+        const interval = setInterval(() => {
+            fetchScheduleStatusCount();
+            fetchMBUResponseCounts();
+        }, 5000); // 5 sec
+
+        return () => clearInterval(interval); // cleanup on unmount
+    }, []);
+
+// Apply filters to campaigns and sort by date
+    const filteredCampaigns = campaigns
+        .filter(c => (templateFilter === 'All' || c.template_type === templateFilter))
+        .filter(c => (languageFilter === 'All' || c.langcode === languageFilter))
+        .filter(c => {
+            if (!dateFilter) return true
+            const cDate = c.entrytime ? new Date(c.entrytime).toISOString().slice(0, 10) : ''
+            return cDate === dateFilter
+        })
+        .sort((a, b) => new Date(b.entrytime || 0) - new Date(a.entrytime || 0))
+
+    const campaignStats = useMemo(() => {
+        return campaigns.reduce((acc, campaign) => {
+            const templateType = String(campaign.template_type || '').toLowerCase();
+            const isFormal = templateType === 'formal';
+            const isInformal = templateType === 'informal';
+
+            // Sent
+            const sent = Number(campaign.sent) || 0;
+            acc.sent += sent;
+            if (isFormal) acc.sentFormal += sent;
+            if (isInformal) acc.sentInformal += sent;
+
+            // Delivered
+            const delivered = Number(campaign.delivered) || 0;
+            acc.delivered += delivered;
+            if (isFormal) acc.deliveredFormal += delivered;
+            if (isInformal) acc.deliveredInformal += delivered;
+
+            // Read (mapped from dbtick)
+            const read = Number(campaign.dbtick) || 0;
+            acc.read += read;
+            if (isFormal) acc.readFormal += read;
+            if (isInformal) acc.readInformal += read;
+
+            // Failed
+            const failed = Number(campaign.failed) || 0;
+            acc.failed += failed;
+            if (isFormal) acc.failedFormal += failed;
+            if (isInformal) acc.failedInformal += failed;
+
+            return acc;
+        }, {
+            sent: 0, sentFormal: 0, sentInformal: 0,
+            delivered: 0, deliveredFormal: 0, deliveredInformal: 0,
+            read: 0, readFormal: 0, readInformal: 0,
+            failed: 0, failedFormal: 0, failedInformal: 0
+        });
+    }, [campaigns]);
+
+    const mbuTotal = mbuCounts.yes + mbuCounts.no + mbuCounts.notNow + mbuCounts.noSelection
+
+    const chartData = useMemo(() => [
+        { name: 'MBU Yes', value: mbuCounts.yes, color: '#10b981' },
+        { name: 'MBU No', value: mbuCounts.no, color: '#c6cd49' },
+        { name: 'Not Now', value: mbuCounts.notNow, color: '#f59e0b' },
+        { name: 'No Selection', value: mbuCounts.noSelection, color: '#94a3b8' },
+    ], [mbuCounts])
+
+    const mbuResponded =
+        (mbuCounts?.yes || 0) +
+        (mbuCounts?.no || 0) +
+        (mbuCounts?.notNow || 0)
+
+    const mbuResponseRate = mbuTotal
+        ? ((mbuResponded / mbuTotal) * 100).toFixed(1)
+        : 0
+
+// Calculate aggregated reminder stats based on the selected date filter
+    const activeReminderStats = useMemo(() => {
+        const targetDate = reminderDateFilter || new Date().toISOString().split('T')[0];
+        const relevantRecords = reminderHistory.filter(item => item.stat_date === targetDate);
+
+        const aggregated = relevantRecords.reduce((acc, curr) => {
+            acc.sent += (Number(curr.sent) || 0);
+            acc.delivered += (Number(curr.delivered) || 0);
+            acc.read += (Number(curr.read) || 0);
+            acc.failed += (Number(curr.failed) || 0);
+            acc.total += (Number(curr.total_count) || 0);
+            acc.recordCount += 1;
+            return acc;
+        }, { sent: 0, delivered: 0, read: 0, failed: 0, total: 0, recordCount: 0 });
+
+        return { ...aggregated, date: targetDate };
+    }, [reminderHistory, reminderDateFilter]);
+
+    const reminderChartData = useMemo(() => [
+        { name: 'Sent', value: activeReminderStats.sent, color: '#3bb80a' },
+        { name: 'Delivered', value: activeReminderStats.delivered, color: '#6366f1' },
+        { name: 'Read', value: activeReminderStats.read, color: '#0ea5e9' },
+        { name: 'Failed', value: activeReminderStats.failed, color: '#f43f5e' },
+    ], [activeReminderStats])
+
+    const totalScheduled = activeReminderStats.total || 0
+
+    const deliveryRate = totalScheduled
+        ? ((activeReminderStats.delivered / totalScheduled) * 100).toFixed(1)
+        : 0
+
 
     const CustomTooltip = ({ active, payload, total }) => {
         if (active && payload && payload.length) {
-            const currentTotal = total || mbuTotal
-            const percentage = ((payload[0].value / currentTotal) * 100).toFixed(1)
+            const percentage = total ? ((payload[0].value / total) * 100).toFixed(1) : null
             return (
                 <div className="custom-tooltip" style={{
                     background: 'white',
@@ -52,40 +251,67 @@ export function DashboardPage({ data, animatedValues }) {
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}>
                     <p style={{ margin: 0, fontWeight: 600, color: '#1e293b' }}>{payload[0].name}</p>
-                    <p style={{ margin: 0, color: payload[0].payload.color, fontWeight: 700 }}>{payload[0].value.toLocaleString()} ({percentage}%)</p>
+                    <p style={{ margin: 0, color: payload[0].payload.color, fontWeight: 700 }}>
+                        {payload[0].value.toLocaleString()} {percentage ? `(${percentage}%)` : ''}
+                    </p>
                 </div>
             )
         }
         return null
     }
 
-    const filteredReminders = data.recentReminders
+    const filteredReminders = reminderHistory
         .filter(reminder => {
-            if (reminderDateFilter && reminder.date !== reminderDateFilter) return false
-            if (reminderLanguageFilter !== 'All' && reminder.language !== reminderLanguageFilter) return false
-            if (reminderTemplateFilter !== 'All' && reminder.templateName !== reminderTemplateFilter) return false
+            if (reminderDateFilter && reminder.stat_date !== reminderDateFilter) return false
+            // Note: API data might not have language and templateName in the same way, 
+            // but we can filter by templateid if needed. For now, following the user's request for status values.
             return true
         })
-        .sort((a, b) => {
-            const dateDiff = new Date(a.date) - new Date(b.date)
-            if (dateDiff !== 0) return dateDiff
-            return a.templateName.localeCompare(b.templateName) || a.language.localeCompare(b.language)
+        .sort((a, b) => new Date(b.stat_date) - new Date(a.stat_date))
+
+    // Group reminders by date
+    const groupedReminders = filteredReminders.reduce((acc, reminder) => {
+        const date = reminder.stat_date;
+        if (!acc[date]) {
+            acc[date] = []
+        }
+        acc[date].push(reminder)
+        return acc
+    }, {})
+
+    // Calculate aggregated totals for each date
+    const dateAggregates = Object.entries(groupedReminders).map(([date, reminders]) => {
+        const total = reminders.reduce((sum, r) => sum + (Number(r.total_count) || 0), 0)
+        const sent = reminders.reduce((sum, r) => sum + (Number(r.sent) || 0), 0)
+        const delivered = reminders.reduce((sum, r) => sum + (Number(r.delivered) || 0), 0)
+        const read = reminders.reduce((sum, r) => sum + (Number(r.read) || 0), 0)
+        const failed = reminders.reduce((sum, r) => sum + (Number(r.failed) || 0), 0)
+        return { date, total, sent, delivered, read, failed, details: reminders }
+    }).sort((a, b) => new Date(b.date) - new Date(a.date))
+
+    const toggleDateExpansion = (date) => {
+        setExpandedDates(prev => {
+            const newSet = new Set(prev)
+            if (newSet.has(date)) {
+                newSet.delete(date)
+            } else {
+                newSet.add(date)
+            }
+            return newSet
         })
+    }
 
     return (
         <>
             <header className="header">
                 <div className="header-left">
-                    <h1>Campaign Overview</h1>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '4px' }}>Welcome, {userName}</h2>
+                    <h1 style={{ fontSize: '1.1rem', color: '#64748b', fontWeight: 'normal', marginTop: '0' }}>Campaign Overview</h1>
                     <p>WhatsApp Aadhar MBU Campaign Analytics</p>
                 </div>
                 <div className="header-right">
                     <div className="header-date">
                         {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </div>
-                    <div className="header-actions">
-                        <button className="header-btn"><Icons.Search /></button>
-                        <button className="header-btn"><Icons.Bell /></button>
                     </div>
                 </div>
             </header>
@@ -93,47 +319,47 @@ export function DashboardPage({ data, animatedValues }) {
             {/* Stats */}
             <div className="stats-grid">
                 <StatCard
-                    icon={Icons.Send}
+                    icon={SendIcon}
                     label="Sent Messages"
-                    value={animatedValues.sent}
+                    value={campaignStats.sent}
+                    formalValue={campaignStats.sentFormal}
+                    informalValue={campaignStats.sentInformal}
                     changeType="positive"
                     type="sent"
-                    formalValue={animatedValues.sentFormal}
-                    informalValue={animatedValues.sentInformal}
                 />
                 <StatCard
-                    icon={Icons.Check}
+                    icon={CheckIcon}
                     label="Delivered Messages"
-                    value={animatedValues.delivered}
+                    value={campaignStats.delivered}
+                    formalValue={campaignStats.deliveredFormal}
+                    informalValue={campaignStats.deliveredInformal}
                     changeType="positive"
                     type="delivered"
-                    formalValue={animatedValues.deliveredFormal}
-                    informalValue={animatedValues.deliveredInformal}
                 />
                 <StatCard
-                    icon={Icons.Eye}
+                    icon={VisibilityIcon}
                     label="Read Messages"
-                    value={animatedValues.read}
+                    value={campaignStats.read}
+                    formalValue={campaignStats.readFormal}
+                    informalValue={campaignStats.readInformal}
                     changeType="positive"
                     type="read"
-                    formalValue={animatedValues.readFormal}
-                    informalValue={animatedValues.readInformal}
                 />
                 <StatCard
-                    icon={Icons.XCircle}
+                    icon={CancelIcon}
                     label="Failed Messages"
-                    value={animatedValues.failed}
+                    value={campaignStats.failed}
+                    formalValue={campaignStats.failedFormal}
+                    informalValue={campaignStats.failedInformal}
                     changeType="negative"
                     type="failed"
-                    formalValue={animatedValues.failedFormal}
-                    informalValue={animatedValues.failedInformal}
                 />
             </div>
 
             <div className="card" style={{ marginTop: '1rem' }}>
                 <div className="card-header">
                     <div className="card-title">
-                        <div className="card-title-icon"><Icons.FileText /></div>
+                        <div className="card-title-icon"><DescriptionIcon /></div>
                         Campaign History
                     </div>
                     <div className="table-actions">
@@ -168,7 +394,7 @@ export function DashboardPage({ data, animatedValues }) {
                                 title="Clear date filter"
                                 style={{ height: '38px', padding: '0 10px' }}
                             >
-                                <Icons.XCircle size={16} />
+                                <CancelIcon sx={{ fontSize: 16 }} />
                             </button>
                         )}
                     </div>
@@ -181,7 +407,6 @@ export function DashboardPage({ data, animatedValues }) {
                                 <th>Campaign Name</th>
                                 <th>Language</th>
                                 <th>Template</th>
-                                <th>Total</th>
                                 <th>Sent</th>
                                 <th>Delivered</th>
                                 <th>Read</th>
@@ -189,50 +414,37 @@ export function DashboardPage({ data, animatedValues }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredCampaigns.map(campaign => (
-                                <tr key={campaign.id}>
-                                    <td className="date-cell">{campaign.date}</td>
-                                    <td style={{ fontWeight: 500 }}>{campaign.name}</td>
-                                    <td>{campaign.language}</td>
-                                    <td>{campaign.templateName}</td>
-                                    <td>{(campaign.sent + campaign.delivered + (campaign.read || 0) + (campaign.failed || 0)).toLocaleString()}</td>
-                                    <td>{campaign.sent.toLocaleString()}</td>
-                                    <td>{campaign.delivered.toLocaleString()}</td>
-                                    <td>{(campaign.read || 0).toLocaleString()}</td>
-                                    <td>{(campaign.failed || 0).toLocaleString()}</td>
+                            {filteredCampaigns.length === 0 ? (
+                                <tr>
+                                    <td colSpan={8} style={{ textAlign: 'center', padding: '12px', color: '#64748b' }}>
+                                        No campaigns found
+                                    </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                filteredCampaigns.map(campaign => (
+                                    <tr key={campaign.campaignid}>
+                                        <td className="date-cell">{campaign.entrytime ? new Date(campaign.entrytime).toLocaleDateString() : '-'}</td>
+                                        <td style={{ fontWeight: 500 }}>{campaign.campaign_title || '-'}</td>
+                                        <td>{campaign.langcode || '-'}</td>
+                                        <td>{campaign.template_type || '-'}</td>
+                                        <td>{(campaign.sent || 0).toLocaleString()}</td>
+                                        <td>{(campaign.delivered || 0).toLocaleString()}</td>
+                                        <td>{(campaign.dbtick || 0).toLocaleString()}</td>
+                                        <td>{(campaign.failed || 0).toLocaleString()}</td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
 
 
-
-            {/* <header className="header">
-                <div className="header-left">
-                    <h1>User Management</h1>
-                    <p>Manage Aadhar MBU campaign users</p>
-                </div>
-                <div className="header-right">
-                    <div className="header-date">
-                        {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </div>
-                </div>
-            </header>
-
-            {/* <div className="stats-grid">
-                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length} changeType="positive" type="sent" />
-                <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} changeType="positive" type="delivered" />
-                <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" />
-                <StatCard icon={Icons.XCircle} label="Pending" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
-            </div> */}
-
             <div className="content-grid" style={{ marginTop: '1.5rem' }}>
                 <div className="card">
                     <div className="card-header">
                         <div className="card-title">
-                            <div className="card-title-icon"><Icons.BarChart /></div>
+                            <div className="card-title-icon"><BarChartIcon /></div>
                             MBU Response
                         </div>
                     </div>
@@ -247,38 +459,56 @@ export function DashboardPage({ data, animatedValues }) {
                                     outerRadius={100}
                                     paddingAngle={5}
                                     dataKey="value"
+                                    isAnimationActive={false}
+                                    animationDuration={0}
+                                    animationBegin={0}
                                 >
                                     {chartData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
-                                <Tooltip
-                                    content={<CustomTooltip />}
-                                    position={{ x: 210, y: 0 }}
-                                />
+                                <Tooltip content={<CustomTooltip total={mbuTotal} />} position={{ x: 210, y: 0 }} />
                             </PieChart>
                         </ResponsiveContainer>
+
                         <div className="response-chart-center">
-                            <div className="response-chart-value">{mbuTotal.toLocaleString()}</div>
-                            <div className="response-chart-label" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-blue)', marginTop: '2px' }}>{mbuResponseRate}% Response</div>
+                            <div className="response-chart-value">
+                                {mbuResponded.toLocaleString()}
+                            </div>
+                            <div
+                                className="response-chart-label"
+                                style={{
+                                    fontSize: '0.85rem',
+                                    fontWeight: 600,
+                                    color: 'var(--accent-blue)',
+                                    marginTop: '2px',
+                                }}
+                            >
+                                {mbuResponseRate}% Response
+                            </div>
                         </div>
                     </div>
+
                     <div className="mbu-grid">
                         <div className="mbu-card yes">
-                            <div className="mbu-value">{animatedValues.mbuYes}</div>
-                            <div className="mbu-label">MBU - Yes ({((data.campaign.mbuYes / mbuTotal) * 100).toFixed(1)}%)</div>
+                            <div className="mbu-value">{mbuCounts.yes.toLocaleString()}</div>
+                            <div className="mbu-label">MBU - Yes ({mbuTotal ? ((mbuCounts.yes / mbuTotal) * 100).toFixed(1) : 0}%)</div>
                         </div>
                         <div className="mbu-card no">
-                            <div className="mbu-value">{animatedValues.mbuNo}</div>
-                            <div className="mbu-label">MBU - No ({((data.campaign.mbuNo / mbuTotal) * 100).toFixed(1)}%)</div>
+                            <div className="mbu-value">{mbuCounts.no.toLocaleString()}</div>
+                            <div className="mbu-label">MBU - No ({mbuTotal ? ((mbuCounts.no / mbuTotal) * 100).toFixed(1) : 0}%)</div>
                         </div>
-                        <div className="mbu-card not-now" style={{ gridColumn: 'span 2' }}>
-                            <div className="mbu-value">{animatedValues.notNow}</div>
-                            <div className="mbu-label">Not Now ({((data.campaign.mbuNotNow / mbuTotal) * 100).toFixed(1)}%)</div>
+                        <div className="mbu-card not-now">
+                            <div className="mbu-value">{mbuCounts.notNow.toLocaleString()}</div>
+                            <div className="mbu-label">Not Now ({mbuTotal ? ((mbuCounts.notNow / mbuTotal) * 100).toFixed(1) : 0}%)</div>
+                        </div>
+                        <div className="mbu-card failed-response">
+                            <div className="mbu-value">{(campaignStats.failed || 0).toLocaleString()}</div>
+                            <div className="mbu-label">Failed ({mbuTotal ? ((campaignStats.failed / mbuTotal) * 100).toFixed(1) : 0}%)</div>
                         </div>
                         <div className="mbu-card no-selection" style={{ gridColumn: 'span 2' }}>
-                            <div className="mbu-value">{animatedValues.mbuNoSelection}</div>
-                            <div className="mbu-label">No Selection ({((data.campaign.mbuNoSelection / mbuTotal) * 100).toFixed(1)}%)</div>
+                            <div className="mbu-value">{mbuCounts.noSelection.toLocaleString()}</div>
+                            <div className="mbu-label">No Selection ({mbuTotal ? ((mbuCounts.noSelection / mbuTotal) * 100).toFixed(1) : 0}%)</div>
                         </div>
                     </div>
                 </div>
@@ -286,8 +516,13 @@ export function DashboardPage({ data, animatedValues }) {
                 <div className="card">
                     <div className="card-header">
                         <div className="card-title">
-                            <div className="card-title-icon"><Icons.Bell /></div>
-                            Reminders
+                            <div className="card-title-icon"><NotificationsIcon /></div>
+                            {reminderDateFilter ? 'Filtered Reminders' : "Today's Reminders"}
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>
+                                {new Date(activeReminderStats.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </div>
                         </div>
                     </div>
                     <div className="response-chart">
@@ -301,51 +536,92 @@ export function DashboardPage({ data, animatedValues }) {
                                     outerRadius={100}
                                     paddingAngle={5}
                                     dataKey="value"
+                                    isAnimationActive={false}
+                                    animationDuration={0}
+                                    animationBegin={0}
                                 >
                                     {reminderChartData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
-                                <Tooltip
-                                    content={<CustomTooltip />}
-                                    position={{ x: 210, y: 0 }}
-                                />
+                                <Tooltip content={<CustomTooltip total={totalScheduled} />} position={{ x: 210, y: 0 }} />
                             </PieChart>
                         </ResponsiveContainer>
+
                         <div className="response-chart-center">
-                            <div className="response-chart-value">{reminderDeliveryRate}%</div>
-                            <div className="response-chart-label" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent-blue)', marginTop: '2px' }}>Delivered</div>
+                            <div className="response-chart-value">
+                                {activeReminderStats.delivered.toLocaleString()}
+                            </div>
+                            <div
+                                className="response-chart-label"
+                                style={{
+                                    fontSize: '0.85rem',
+                                    fontWeight: 600,
+                                    color: 'var(--accent-blue)',
+                                    marginTop: '2px',
+                                }}
+                            >
+                                {deliveryRate}% Delivered
+                            </div>
                         </div>
                     </div>
+
                     <div className="mbu-grid">
                         <div className="mbu-card not-completed" style={{ gridColumn: 'span 2' }}>
-                            <div className="mbu-value">{animatedValues.remindersProgramYes.toLocaleString()}</div>
-                            <div className="mbu-label">Reminders Opted - Yes</div>
+                            <div className="mbu-value">{totalScheduled.toLocaleString()}</div>
+                            <div className="mbu-label">
+                                Total Schedule - Yes (100%)
+                            </div>
                         </div>
+
                         <div className="mbu-card yes">
-                            <div className="mbu-value">{animatedValues.remindersSent.toLocaleString()}</div>
+                            <div className="mbu-value">
+                                {activeReminderStats.sent.toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({totalScheduled ? ((activeReminderStats.sent / totalScheduled) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
                             <div className="mbu-label">Sent</div>
                         </div>
+
                         <div className="mbu-card no">
-                            <div className="mbu-value">{(data.campaign.remindersSent - data.campaign.remindersDelivered).toLocaleString()}</div>
+                            <div className="mbu-value">
+                                {activeReminderStats.failed.toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({totalScheduled ? ((activeReminderStats.failed / totalScheduled) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
                             <div className="mbu-label">Failed</div>
                         </div>
+
                         <div className="mbu-card yes">
-                            <div className="mbu-value">{animatedValues.remindersDelivered.toLocaleString()}</div>
+                            <div className="mbu-value">
+                                {activeReminderStats.delivered.toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({totalScheduled ? ((activeReminderStats.delivered / totalScheduled) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
                             <div className="mbu-label">Delivered</div>
                         </div>
+
                         <div className="mbu-card read">
-                            <div className="mbu-value">{animatedValues.remindersRead.toLocaleString()}</div>
+                            <div className="mbu-value">
+                                {activeReminderStats.read.toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({totalScheduled ? ((activeReminderStats.read / totalScheduled) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
                             <div className="mbu-label">Read</div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
             <div className="card" style={{ marginTop: '1rem' }}>
                 <div className="card-header">
                     <div className="card-title">
-                        <div className="card-title-icon"><Icons.Bell /></div>
+                        <div className="card-title-icon"><NotificationsIcon /></div>
                         Reminders History
                     </div>
                     <div className="table-actions">
@@ -355,24 +631,7 @@ export function DashboardPage({ data, animatedValues }) {
                             value={reminderDateFilter}
                             onChange={(e) => setReminderDateFilter(e.target.value)}
                         />
-                        <select
-                            className="filter-select"
-                            value={reminderLanguageFilter}
-                            onChange={(e) => setReminderLanguageFilter(e.target.value)}
-                        >
-                            <option value="All">All Languages</option>
-                            <option value="Hindi">Hindi</option>
-                            <option value="English">English</option>
-                        </select>
-                        <select
-                            className="filter-select"
-                            value={reminderTemplateFilter}
-                            onChange={(e) => setReminderTemplateFilter(e.target.value)}
-                        >
-                            <option value="All">All Templates</option>
-                            <option value="Formal">Formal</option>
-                            <option value="Informal">Informal</option>
-                        </select>
+                        {/* Date filter only for now since API doesn't provide language/template filtering yet */}
                         {reminderDateFilter && (
                             <button
                                 className="icon-btn"
@@ -380,7 +639,7 @@ export function DashboardPage({ data, animatedValues }) {
                                 title="Clear date filter"
                                 style={{ height: '38px', padding: '0 10px' }}
                             >
-                                <Icons.XCircle size={16} />
+                                <CancelIcon sx={{ fontSize: 16 }} />
                             </button>
                         )}
                     </div>
@@ -392,24 +651,50 @@ export function DashboardPage({ data, animatedValues }) {
                                 <th>Date</th>
                                 <th>Template</th>
                                 <th>Language</th>
-                                <th>Total Seclude</th>
+                                <th>Total Scheduled</th>
                                 <th>Sent</th>
-                                <th>Delivered</th>
+                                <th >Delivered</th>
+                                <th>Read</th>
                                 <th>Failed</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredReminders.map(reminder => (
-                                <tr key={reminder.id}>
-                                    <td className="date-cell">{reminder.date}</td>
-                                    <td style={{ fontWeight: 500 }}>{reminder.templateName}</td>
-                                    <td>{reminder.language}</td>
-                                    <td>{(reminder.total || 0).toLocaleString()}</td>
-                                    <td>{(reminder.sent || 0).toLocaleString()}</td>
-                                    <td>{reminder.delivered.toLocaleString()}</td>
-                                    <td>{(reminder.failed || 0).toLocaleString()}</td>
-                                </tr>
-                            ))}
+                            {dateAggregates.map(dateGroup => {
+                                const isExpanded = expandedDates.has(dateGroup.date)
+                                return (
+                                    <React.Fragment key={dateGroup.date}>
+                                        <tr
+                                            className="date-group-row"
+                                            onClick={() => toggleDateExpansion(dateGroup.date)}
+                                            style={{ cursor: 'pointer', backgroundColor: '#f8fafc', fontWeight: 600 }}
+                                        >
+                                            <td className="date-cell" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                {isExpanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
+                                                {dateGroup.date}
+                                            </td>
+                                            <td style={{ color: '#64748b' }}>All Templates</td>
+                                            <td style={{ color: '#64748b' }}>All Languages</td>
+                                            <td>{dateGroup.total.toLocaleString()}</td>
+                                            <td>{dateGroup.sent.toLocaleString()}</td>
+                                            <td>{dateGroup.delivered.toLocaleString()}</td>
+                                            <td>{dateGroup.read.toLocaleString()}</td>
+                                            <td>{dateGroup.failed.toLocaleString()}</td>
+                                        </tr>
+                                        {isExpanded && dateGroup.details.map(reminder => (
+                                            <tr key={reminder.id} className="detail-row" style={{ backgroundColor: '#dcdee0' }}>
+                                                <td style={{ paddingLeft: '40px' }}></td>
+                                                <td style={{ fontWeight: 500 }}>{reminder.templateid}</td>
+                                                <td>{reminder.langcode}</td>
+                                                <td>{(reminder.total_count || 0).toLocaleString()}</td>
+                                                <td>{(reminder.sent || 0).toLocaleString()}</td>
+                                                <td>{(reminder.delivered || 0).toLocaleString()}</td>
+                                                <td>{(reminder.read || 0).toLocaleString()}</td>
+                                                <td>{(reminder.failed || 0).toLocaleString()}</td>
+                                            </tr>
+                                        ))}
+                                    </React.Fragment>
+                                )
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -417,3 +702,5 @@ export function DashboardPage({ data, animatedValues }) {
         </>
     )
 }
+
+

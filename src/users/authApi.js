@@ -13,8 +13,4 @@ export async function loginUser({ email, password }) {
     }
 }
 
-export async function logOut() {
-    const response = await axiosInstance.post('/dashboard/logout');
-    return response.data;
-}
 

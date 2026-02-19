@@ -1,5 +1,14 @@
 import { useState } from 'react'
-import { Icons } from '../components/Icons'
+import GroupIcon from '@mui/icons-material/Group';
+import CheckIcon from '@mui/icons-material/Check';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SearchIcon from '@mui/icons-material/Search';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import PhoneIcon from '@mui/icons-material/Phone';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { StatCard } from '../components/StatCard'
 import { usersData } from '../data/mockData'
 
@@ -49,22 +58,21 @@ export function UsersPage() {
 
             {/* Stats Summary */}
             <div className="stats-grid">
-                <StatCard icon={Icons.Users} label="Total Users" value={usersData.length} changeType="positive" type="sent" />
-                <StatCard icon={Icons.Check} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} changeType="positive" type="delivered" />
-                {/* <StatCard icon={Icons.Eye} label="In Progress" value={usersData.filter(u => u.mbuStatus === 'pending').length} changeType="positive" type="read" /> */}
-                <StatCard icon={Icons.XCircle} label="Pending" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
+                <StatCard icon={GroupIcon} label="Total Users" value={usersData.length} changeType="positive" type="sent" />
+                <StatCard icon={CheckIcon} label="MBU Completed" value={usersData.filter(u => u.mbuStatus === 'completed').length} changeType="positive" type="delivered" />
+                <StatCard icon={CancelIcon} label="Pending" value={usersData.filter(u => u.mbuStatus === 'failed').length} changeType="negative" type="failed" />
             </div>
 
             {/* Users Table Card */}
             <div className="card">
                 <div className="card-header">
                     <div className="card-title">
-                        <div className="card-title-icon"><Icons.Users /></div>
+                        <div className="card-title-icon"><GroupIcon /></div>
                         All Users
                     </div>
                     <div className="table-actions">
                         <div className="search-box">
-                            <Icons.Search />
+                            <SearchIcon />
                             <input
                                 type="text"
                                 placeholder="Search users..."
@@ -91,7 +99,7 @@ export function UsersPage() {
                             <option value="pending">Pending</option>
                         </select>
                         <button className="btn-primary">
-                            <Icons.PlusCircle />
+                            <AddCircleIcon />
                             Add User
                         </button>
                     </div>
@@ -122,14 +130,14 @@ export function UsersPage() {
                                 </td>
                                 <td>
                                     <div className="phone-cell">
-                                        <Icons.Phone />
+                                        <PhoneIcon sx={{ fontSize: 18 }} />
                                         {user.phone}
                                     </div>
                                 </td>
                                 <td><span className="aadhar-masked">{user.aadhar}</span></td>
                                 <td>
                                     <div className="location-cell">
-                                        <Icons.MapPin />
+                                        <LocationOnIcon sx={{ fontSize: 18 }} />
                                         {user.location}
                                     </div>
                                 </td>
@@ -147,9 +155,9 @@ export function UsersPage() {
                                 <td className="date-cell">{user.lastActive}</td>
                                 <td>
                                     <div className="action-buttons">
-                                        <button className="icon-btn edit"><Icons.Edit /></button>
-                                        <button className="icon-btn delete"><Icons.Trash /></button>
-                                        <button className="icon-btn more"><Icons.MoreVertical /></button>
+                                        <button className="icon-btn edit"><EditIcon sx={{ fontSize: 18 }} /></button>
+                                        <button className="icon-btn delete"><DeleteIcon sx={{ fontSize: 18 }} /></button>
+                                        <button className="icon-btn more"><MoreVertIcon sx={{ fontSize: 18 }} /></button>
                                     </div>
                                 </td>
                             </tr>

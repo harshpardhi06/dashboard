@@ -1,100 +1,59 @@
 import { useState, useEffect } from 'react'
-import { Icons } from './components/Icons'
+import HomeIcon from '@mui/icons-material/Home';
+import GroupIcon from '@mui/icons-material/Group';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { dashboardData, usersData } from './data/mockData'
 import { DashboardPage } from './pages/DashboardPage'
 import { UsersPage } from './pages/UsersPage'
 import { LoginPage } from './pages/LoginPage'
-import { logOut } from './users/authApi'
 import './App.css'
+import { ReportsPage } from './pages/ReportsPage'
 
 const navItems = [
-  { id: 'dashboard', icon: Icons.Home, label: 'Dashboard' },
-  // { id: 'users', icon: Icons.Users, label: 'Users' },
+  { id: 'dashboard', icon: HomeIcon, label: 'Dashboard' },
+  { id: 'reports', icon: GroupIcon, label: 'Reports' },
 ]
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'))
+  const [userName, setUserName] = useState(() => localStorage.getItem('userName') || 'Admin User')
   const [data] = useState(dashboardData)
-  const [currentPage, setCurrentPage] = useState('dashboard')
-  const [animatedValues, setAnimatedValues] = useState({
-    sent: 0, delivered: 0, read: 0, failed: 0, mbuYes: 0, mbuNo: 0,
-    notNow: 0, mbuNoSelection: 0, remindersSent: 0, remindersPushed: 0, remindersProgramYes: 0,
-    remindersDelivered: 0, remindersRead: 0,
-    sentFormal: 0, sentInformal: 0,
-    deliveredFormal: 0, deliveredInformal: 0,
-    readFormal: 0, readInformal: 0,
-    failedFormal: 0, failedInformal: 0,
-    eng: 0, hin: 0, mar: 0,
-    formalTotal: 0, formalEng: 0, formalHin: 0,
-    informalTotal: 0, informalEng: 0, informalHin: 0,
-    video: 0, poster: 0
-  })
+  const [currentPage, setCurrentPage] = useState(() => localStorage.getItem('lastPage') || 'dashboard')
+
 
   useEffect(() => {
-    const duration = 1500
-    const steps = 60
-    const interval = duration / steps
-    let step = 0
-    const timer = setInterval(() => {
-      step++
-      const progress = step / steps
-      const easeOut = 1 - Math.pow(1 - progress, 3)
-      setAnimatedValues({
-        sent: Math.round(data.campaign.totalMessages * easeOut),
-        sentFormal: Math.round(data.campaign.formats.formal.total * easeOut),
-        sentInformal: Math.round(data.campaign.formats.informal.total * easeOut),
-        delivered: Math.round(data.campaign.delivered * easeOut),
-        deliveredFormal: Math.round((data.campaign.delivered * (data.campaign.formats.formal.total / data.campaign.totalMessages)) * easeOut),
-        deliveredInformal: Math.round((data.campaign.delivered * (data.campaign.formats.informal.total / data.campaign.totalMessages)) * easeOut),
-        read: Math.round(data.campaign.read * easeOut),
-        readFormal: Math.round((data.campaign.read * (data.campaign.formats.formal.total / data.campaign.totalMessages)) * easeOut),
-        readInformal: Math.round((data.campaign.read * (data.campaign.formats.informal.total / data.campaign.totalMessages)) * easeOut),
-        failed: Math.round(data.campaign.failed * easeOut),
-        failedFormal: Math.round((data.campaign.failed * (data.campaign.formats.formal.total / data.campaign.totalMessages)) * easeOut),
-        failedInformal: Math.round((data.campaign.failed * (data.campaign.formats.informal.total / data.campaign.totalMessages)) * easeOut),
-        mbuYes: Math.round(data.campaign.mbuYes * easeOut),
-        mbuNo: Math.round(data.campaign.mbuNo * easeOut),
-        notNow: Math.round(data.campaign.mbuNotNow * easeOut),
-        mbuNoSelection: Math.round(data.campaign.mbuNoSelection * easeOut),
-        remindersSent: Math.round(data.campaign.remindersSent * easeOut),
-        remindersPushed: Math.round(data.campaign.remindersPushed * easeOut),
-        remindersDelivered: Math.round(data.campaign.remindersDelivered * easeOut),
-        remindersRead: Math.round(data.campaign.remindersRead * easeOut),
-        remindersProgramYes: Math.round(data.campaign.remindersProgramYes * easeOut),
-        eng: Math.round(data.campaign.languages.english * easeOut),
-        hin: Math.round(data.campaign.languages.hindi * easeOut),
-        mar: Math.round(data.campaign.languages.marathi * easeOut),
-        formalTotal: Math.round(data.campaign.formats.formal.total * easeOut),
-        formalEng: Math.round(data.campaign.formats.formal.english * easeOut),
-        formalHin: Math.round(data.campaign.formats.formal.hindi * easeOut),
-        informalTotal: Math.round(data.campaign.formats.informal.total * easeOut),
-        informalEng: Math.round(data.campaign.formats.informal.english * easeOut),
-        informalHin: Math.round(data.campaign.formats.informal.hindi * easeOut),
-        video: Math.round(data.campaign.assetsPushed.video * easeOut),
-        poster: Math.round(data.campaign.assetsPushed.poster * easeOut),
-      })
-      if (step >= steps) clearInterval(timer)
-    }, interval)
-    return () => clearInterval(timer)
-  }, [data])
+    if (isLoggedIn) {
+      localStorage.setItem('lastPage', currentPage)
+    }
+  }, [currentPage, isLoggedIn])
 
   const handleLogin = () => {
     setIsLoggedIn(true)
+    const storedName = localStorage.getItem('userName')
+    if (storedName) {
+      setUserName(storedName)
+    }
   }
 
-  const handleLogout = async () => {
-    try {
-      await logOut();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+  // const handleLogout = async () => {
+  //   debugger;
+  //   try {
+  //     await logOut();
+  //     setIsLoggedIn(false);
+  //     console.log('Logged out successfully');
+  //   } catch (error) {
+  //     console.error('Logout error:', error);
+  //   }
+  // };
 
-      setIsLoggedIn(false);
-      navigate('/login');
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('lastPage');
+    localStorage.removeItem('userName');
+    setIsLoggedIn(false);
+    setCurrentPage('dashboard');
   };
+
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />
@@ -130,13 +89,18 @@ function App() {
 
         <div className="sidebar-footer">
           <div className="user-profile" onClick={handleLogout} title="Click to logout">
-            <div className="user-avatar">AD</div>
+            <div className="user-icon" style={{
+              width: '32px', height: '32px', borderRadius: '50%', background: '#e2e8f0',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b'
+            }}>
+              {userName.charAt(0).toUpperCase()}
+            </div>
             <div className="user-info">
-              <div className="user-name">Admin User</div>
+              <div className="user-name">{userName}</div>
               <div className="user-role">Administrator</div>
             </div>
             <div className="logout-icon" style={{ marginLeft: 'auto' }}>
-              <Icons.LogOut />
+              <LogoutIcon />
             </div>
           </div>
         </div>
@@ -144,9 +108,11 @@ function App() {
 
       {/* Main Content */}
       <main className="main-content">
-        {currentPage === 'dashboard' && <DashboardPage data={data} animatedValues={animatedValues} />}
+        {currentPage === 'dashboard' && <DashboardPage data={data} userName={userName} />}
         {currentPage === 'users' && <UsersPage />}
-        {currentPage !== 'dashboard' && currentPage !== 'users' && (
+        {currentPage === 'reports' && <ReportsPage />}
+
+        {currentPage !== 'dashboard' && currentPage !== 'reports' && (
           <div className="coming-soon">
             <div className="coming-soon-icon">🚧</div>
             <h2>Coming Soon</h2>
