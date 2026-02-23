@@ -14,6 +14,13 @@ import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { getMBUResponseCounts, getScheduleStatusHistory } from '../users/scheduleApi'
 import { getCampaignReport } from '../users/campaignApi'
 
+const TEMPLATE_TYPE_MAP = {
+    "temp_101": "Formal",
+    "temp_102": "Informal",
+    "temp_201": "Formal",
+    "temp_202": "Informal",
+};
+
 export function DashboardPage({ data, userName }) {
     const [templateFilter, setTemplateFilter] = useState('All')
     const [languageFilter, setLanguageFilter] = useState('All')
@@ -47,7 +54,6 @@ export function DashboardPage({ data, userName }) {
     const fetchScheduleStatusCount = async () => {
         try {
             const res = await getScheduleStatusHistory();
-
             if (res.success && Array.isArray(res.data)) {
 
                 const formattedData = res.data.map(item => {
@@ -65,8 +71,9 @@ export function DashboardPage({ data, userName }) {
 
                     return {
                         ...item,
-                        langcode: displayLang   // 🔥 yaha replace kar diya
+                        langcode: displayLang
                     };
+
                 });
 
                 setReminderHistory(formattedData);
@@ -75,6 +82,45 @@ export function DashboardPage({ data, userName }) {
             console.error('Error fetching schedule status history:', err);
         }
     };
+
+    //     const fetchScheduleStatusCount = async () => {
+    //     try {
+    //         const res = await getScheduleStatusHistory();
+    //         console.log(res, "reminderhistory");
+
+    //         if (res.success && Array.isArray(res.data)) {
+
+    //             const formattedData = res.data.map(item => {
+
+    //                 const lang = String(item.langcode ?? '')
+    //                     .toLowerCase()
+    //                     .trim();
+
+    //                 let displayLang = item.langcode;
+
+    //                 if (lang === 'hi' || lang === 'hindi') {
+    //                     displayLang = 'Hindi';
+    //                 } else if (lang === 'en' || lang === 'english') {
+    //                     displayLang = 'English';
+    //                 }
+
+    //                 const templateType =
+    //                     TEMPLATE_TYPE_MAP[String(item.templateid)] || "Unknown";
+
+    //                 return {
+    //                     ...item,
+    //                     langcode: displayLang,
+    //                     templateType  
+    //                 };
+    //             });
+
+    //             setReminderHistory(formattedData);
+    //         }
+    //     } catch (err) {
+    //         console.error('Error fetching schedule status history:', err);
+    //     }
+    // };
+
 
     // Fetch MBU response counts and ensure numeric values with defaults
     const fetchMBUResponseCounts = async () => {
@@ -95,6 +141,7 @@ export function DashboardPage({ data, userName }) {
     }
 
     // Fetch campaign report and map language codes to full names for display
+    //TODO: template_type mapping to Formal/Informal if needed based on actual API values (currently using raw values)
     const fetchCampaignReport = async () => {
         try {
             const res = await getCampaignReport();
@@ -139,7 +186,7 @@ export function DashboardPage({ data, userName }) {
         return () => clearInterval(interval); // cleanup on unmount
     }, []);
 
-// Apply filters to campaigns and sort by date
+    // Apply filters to campaigns and sort by date
     const filteredCampaigns = campaigns
         .filter(c => (templateFilter === 'All' || c.template_type === templateFilter))
         .filter(c => (languageFilter === 'All' || c.langcode === languageFilter))
@@ -207,7 +254,7 @@ export function DashboardPage({ data, userName }) {
         ? ((mbuResponded / mbuTotal) * 100).toFixed(1)
         : 0
 
-// Calculate aggregated reminder stats based on the selected date filter
+    // Calculate aggregated reminder stats based on the selected date filter
     const activeReminderStats = useMemo(() => {
         const targetDate = reminderDateFilter || new Date().toISOString().split('T')[0];
         const relevantRecords = reminderHistory.filter(item => item.stat_date === targetDate);

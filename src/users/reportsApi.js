@@ -5,7 +5,7 @@ export async function downloadCSVReport(campaignId) {
         const response = await axiosInstance.get(
             `/csv-reports/download-joined-report?campaignId=${campaignId}`,
             {
-                responseType: "blob", // VERY IMPORTANT
+                responseType: "blob",
             }
         );
 
