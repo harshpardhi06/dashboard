@@ -633,6 +633,16 @@
   border-color: rgba(217, 10, 10, 0.3);
 }
 
+.mbu-card.sent {
+  background: linear-gradient(135deg, rgba(59, 184, 10, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+  border-color: rgba(59, 184, 10, 0.3);
+}
+
+.mbu-card.delivered {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(14, 165, 233, 0.08) 100%);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
 .mbu-value {
   font-size: 2rem;
   font-weight: 700;
@@ -644,6 +654,8 @@
 .mbu-card.not-now .mbu-value { color: var(--accent-amber); }
 .mbu-card.no-selection .mbu-value { color: var(--text-muted); }
 .mbu-card.failed-response .mbu-value { color: #d90a0a; }
+.mbu-card.sent .mbu-value { color: #3bb80a; }
+.mbu-card.delivered .mbu-value { color: #6366f1; }
 
 .mbu-label {
   font-size: 0.8125rem;

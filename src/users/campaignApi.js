@@ -19,6 +19,7 @@ export async function getCampaignReport() {
             campaign_title: item.campaign_title,
             langcode: item.langcode,
             template_type: item.template_type,
+            templateid: item.tempid,
             total: item.total,
             sent: item.sent,
             delivered: item.delivered,

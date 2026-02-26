@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react'
 import HomeIcon from '@mui/icons-material/Home';
 import GroupIcon from '@mui/icons-material/Group';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { dashboardData, usersData } from './data/mockData'
 import { DashboardPage } from './pages/DashboardPage'
-import { UsersPage } from './pages/UsersPage'
 import { LoginPage } from './pages/LoginPage'
 import './App.css'
 import { ReportsPage } from './pages/ReportsPage'
@@ -17,7 +15,6 @@ const navItems = [
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'))
   const [userName, setUserName] = useState(() => localStorage.getItem('userName') || 'Admin User')
-  const [data] = useState(dashboardData)
   const [currentPage, setCurrentPage] = useState(() => localStorage.getItem('lastPage') || 'dashboard')
 
 
@@ -35,16 +32,7 @@ function App() {
     }
   }
 
-  // const handleLogout = async () => {
-  //   debugger;
-  //   try {
-  //     await logOut();
-  //     setIsLoggedIn(false);
-  //     console.log('Logged out successfully');
-  //   } catch (error) {
-  //     console.error('Logout error:', error);
-  //   }
-  // };
+
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -108,7 +96,7 @@ function App() {
 
       {/* Main Content */}
       <main className="main-content">
-        {currentPage === 'dashboard' && <DashboardPage data={data} userName={userName} />}
+        {currentPage === 'dashboard' && <DashboardPage userName={userName} />}
         {currentPage === 'users' && <UsersPage />}
         {currentPage === 'reports' && <ReportsPage />}
 

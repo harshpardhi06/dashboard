@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import SearchIcon from '@mui/icons-material/Search';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SendIcon from '@mui/icons-material/Send';
 import CheckIcon from '@mui/icons-material/Check';
@@ -15,13 +14,13 @@ import { getMBUResponseCounts, getScheduleStatusHistory } from '../users/schedul
 import { getCampaignReport } from '../users/campaignApi'
 
 const TEMPLATE_TYPE_MAP = {
-    "temp_101": "Formal",
-    "temp_102": "Informal",
+    "331466": "Formal",
+    "9423678939789": "Informal",
     "temp_201": "Formal",
-    "temp_202": "Informal",
+    "331470": "Informal",
 };
 
-export function DashboardPage({ data, userName }) {
+export function DashboardPage({ userName }) {
     const [templateFilter, setTemplateFilter] = useState('All')
     const [languageFilter, setLanguageFilter] = useState('All')
     const [dateFilter, setDateFilter] = useState('')
@@ -39,15 +38,6 @@ export function DashboardPage({ data, userName }) {
     });
 
     const [reminderHistory, setReminderHistory] = useState([]);
-    const [reminderStatusCounts, setReminderStatusCounts] = useState({
-        sent: 0,
-        delivered: 0,
-        read: 0,
-        failed: 0,
-        total: 0,
-        stat_date: "",
-        langcode: "",
-    });
 
 
     // Fetch schedule status history and format language codes for display
@@ -69,11 +59,14 @@ export function DashboardPage({ data, userName }) {
                         displayLang = 'English';
                     }
 
+                    const templateType =
+                        TEMPLATE_TYPE_MAP[String(item.templateid)] || "Unknown";
+
                     return {
                         ...item,
-                        langcode: displayLang
+                        langcode: displayLang,
+                        templateType
                     };
-
                 });
 
                 setReminderHistory(formattedData);
@@ -82,45 +75,6 @@ export function DashboardPage({ data, userName }) {
             console.error('Error fetching schedule status history:', err);
         }
     };
-
-    //     const fetchScheduleStatusCount = async () => {
-    //     try {
-    //         const res = await getScheduleStatusHistory();
-    //         console.log(res, "reminderhistory");
-
-    //         if (res.success && Array.isArray(res.data)) {
-
-    //             const formattedData = res.data.map(item => {
-
-    //                 const lang = String(item.langcode ?? '')
-    //                     .toLowerCase()
-    //                     .trim();
-
-    //                 let displayLang = item.langcode;
-
-    //                 if (lang === 'hi' || lang === 'hindi') {
-    //                     displayLang = 'Hindi';
-    //                 } else if (lang === 'en' || lang === 'english') {
-    //                     displayLang = 'English';
-    //                 }
-
-    //                 const templateType =
-    //                     TEMPLATE_TYPE_MAP[String(item.templateid)] || "Unknown";
-
-    //                 return {
-    //                     ...item,
-    //                     langcode: displayLang,
-    //                     templateType  
-    //                 };
-    //             });
-
-    //             setReminderHistory(formattedData);
-    //         }
-    //     } catch (err) {
-    //         console.error('Error fetching schedule status history:', err);
-    //     }
-    // };
-
 
     // Fetch MBU response counts and ensure numeric values with defaults
     const fetchMBUResponseCounts = async () => {
@@ -141,11 +95,9 @@ export function DashboardPage({ data, userName }) {
     }
 
     // Fetch campaign report and map language codes to full names for display
-    //TODO: template_type mapping to Formal/Informal if needed based on actual API values (currently using raw values)
     const fetchCampaignReport = async () => {
         try {
             const res = await getCampaignReport();
-            console.log(res, "reportsdata")
 
             // Map language codes to full names
             const mappedRes = (res || []).map(c => {
@@ -157,10 +109,13 @@ export function DashboardPage({ data, userName }) {
                 } else if (lang === 'en' || lang === 'english') {
                     displayLang = 'English';
                 }
+                const templateType =
+                    TEMPLATE_TYPE_MAP[String(c.templateid)] || "Unknown";
 
                 return {
                     ...c,
-                    langcode: displayLang
+                    langcode: displayLang,
+                    templateType
                 };
             });
 
@@ -188,20 +143,29 @@ export function DashboardPage({ data, userName }) {
 
     // Apply filters to campaigns and sort by date
     const filteredCampaigns = campaigns
-        .filter(c => (templateFilter === 'All' || c.template_type === templateFilter))
+        .filter(c => (templateFilter === 'All' || c.templateType === templateFilter))
         .filter(c => (languageFilter === 'All' || c.langcode === languageFilter))
         .filter(c => {
-            if (!dateFilter) return true
-            const cDate = c.entrytime ? new Date(c.entrytime).toISOString().slice(0, 10) : ''
-            return cDate === dateFilter
+            if (dateFilter) {
+                const cDate = c.entrytime ? new Date(c.entrytime).toISOString().slice(0, 10) : ''
+                return cDate === dateFilter
+            }
+            // Default to current month if no date filter is applied
+            if (c.entrytime) {
+                const campaignDate = new Date(c.entrytime);
+                const now = new Date();
+                return campaignDate.getMonth() === now.getMonth() &&
+                    campaignDate.getFullYear() === now.getFullYear();
+            }
+            return false;
         })
         .sort((a, b) => new Date(b.entrytime || 0) - new Date(a.entrytime || 0))
 
     const campaignStats = useMemo(() => {
         return campaigns.reduce((acc, campaign) => {
-            const templateType = String(campaign.template_type || '').toLowerCase();
-            const isFormal = templateType === 'formal';
-            const isInformal = templateType === 'informal';
+            const tType = String(campaign.templateType || '').toLowerCase();
+            const isFormal = tType === 'formal';
+            const isInformal = tType === 'informal';
 
             // Sent
             const sent = Number(campaign.sent) || 0;
@@ -236,7 +200,11 @@ export function DashboardPage({ data, userName }) {
         });
     }, [campaigns]);
 
-    const mbuTotal = mbuCounts.yes + mbuCounts.no + mbuCounts.notNow + mbuCounts.noSelection
+    // Separate baseline totals for meaningful percentage calculations
+    const mbuInteractionTotal = (mbuCounts.yes || 0) + (mbuCounts.no || 0) + (mbuCounts.notNow || 0) + (mbuCounts.noSelection || 0)
+    // For campaign-wide metrics like Failed, use Delivered + Failed as the baseline
+    const campaignActionBaseline = (campaignStats.delivered || 0) + (campaignStats.failed || 0)
+    const campaignTotal = campaignStats.sent || campaignActionBaseline || 0
 
     const chartData = useMemo(() => [
         { name: 'MBU Yes', value: mbuCounts.yes, color: '#10b981' },
@@ -250,8 +218,8 @@ export function DashboardPage({ data, userName }) {
         (mbuCounts?.no || 0) +
         (mbuCounts?.notNow || 0)
 
-    const mbuResponseRate = mbuTotal
-        ? ((mbuResponded / mbuTotal) * 100).toFixed(1)
+    const mbuResponseRate = mbuInteractionTotal
+        ? ((mbuResponded / mbuInteractionTotal) * 100).toFixed(1)
         : 0
 
     // Calculate aggregated reminder stats based on the selected date filter
@@ -352,7 +320,9 @@ export function DashboardPage({ data, userName }) {
         <>
             <header className="header">
                 <div className="header-left">
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '4px' }}>Welcome, {userName}</h2>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1e293b', marginBottom: '4px' }}>
+                        Welcome, {userName?.charAt(0).toUpperCase() + userName?.slice(1)}
+                    </h2>
                     <h1 style={{ fontSize: '1.1rem', color: '#64748b', fontWeight: 'normal', marginTop: '0' }}>Campaign Overview</h1>
                     <p>WhatsApp Aadhar MBU Campaign Analytics</p>
                 </div>
@@ -464,8 +434,7 @@ export function DashboardPage({ data, userName }) {
                             {filteredCampaigns.length === 0 ? (
                                 <tr>
                                     <td colSpan={8} style={{ textAlign: 'center', padding: '12px', color: '#64748b' }}>
-                                        No campaigns found
-                                    </td>
+                                        No campaigns found for the current date                                    </td>
                                 </tr>
                             ) : (
                                 filteredCampaigns.map(campaign => (
@@ -473,7 +442,7 @@ export function DashboardPage({ data, userName }) {
                                         <td className="date-cell">{campaign.entrytime ? new Date(campaign.entrytime).toLocaleDateString() : '-'}</td>
                                         <td style={{ fontWeight: 500 }}>{campaign.campaign_title || '-'}</td>
                                         <td>{campaign.langcode || '-'}</td>
-                                        <td>{campaign.template_type || '-'}</td>
+                                        <td>{campaign.templateType || '-'}</td>
                                         <td>{(campaign.sent || 0).toLocaleString()}</td>
                                         <td>{(campaign.delivered || 0).toLocaleString()}</td>
                                         <td>{(campaign.dbtick || 0).toLocaleString()}</td>
@@ -492,7 +461,10 @@ export function DashboardPage({ data, userName }) {
                     <div className="card-header">
                         <div className="card-title">
                             <div className="card-title-icon"><BarChartIcon /></div>
-                            MBU Response
+                            Today's MBU Response
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>
+                            {new Date(activeReminderStats.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </div>
                     </div>
                     <div className="response-chart">
@@ -514,7 +486,7 @@ export function DashboardPage({ data, userName }) {
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
-                                <Tooltip content={<CustomTooltip total={mbuTotal} />} position={{ x: 210, y: 0 }} />
+                                <Tooltip content={<CustomTooltip total={mbuInteractionTotal} />} position={{ x: 210, y: 0 }} />
                             </PieChart>
                         </ResponsiveContainer>
 
@@ -538,24 +510,49 @@ export function DashboardPage({ data, userName }) {
 
                     <div className="mbu-grid">
                         <div className="mbu-card yes">
-                            <div className="mbu-value">{mbuCounts.yes.toLocaleString()}</div>
-                            <div className="mbu-label">MBU - Yes ({mbuTotal ? ((mbuCounts.yes / mbuTotal) * 100).toFixed(1) : 0}%)</div>
+                            <div className="mbu-value">
+                                {mbuCounts.yes.toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({mbuInteractionTotal ? ((mbuCounts.yes / mbuInteractionTotal) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
+                            <div className="mbu-label">MBU - Yes</div>
                         </div>
                         <div className="mbu-card no">
-                            <div className="mbu-value">{mbuCounts.no.toLocaleString()}</div>
-                            <div className="mbu-label">MBU - No ({mbuTotal ? ((mbuCounts.no / mbuTotal) * 100).toFixed(1) : 0}%)</div>
+                            <div className="mbu-value">
+                                {mbuCounts.no.toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({mbuInteractionTotal ? ((mbuCounts.no / mbuInteractionTotal) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
+                            <div className="mbu-label">MBU - No</div>
                         </div>
                         <div className="mbu-card not-now">
-                            <div className="mbu-value">{mbuCounts.notNow.toLocaleString()}</div>
-                            <div className="mbu-label">Not Now ({mbuTotal ? ((mbuCounts.notNow / mbuTotal) * 100).toFixed(1) : 0}%)</div>
+                            <div className="mbu-value">
+                                {mbuCounts.notNow.toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({mbuInteractionTotal ? ((mbuCounts.notNow / mbuInteractionTotal) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
+                            <div className="mbu-label">MBU - Not Now</div>
                         </div>
-                        <div className="mbu-card failed-response">
-                            <div className="mbu-value">{(campaignStats.failed || 0).toLocaleString()}</div>
-                            <div className="mbu-label">Failed ({mbuTotal ? ((campaignStats.failed / mbuTotal) * 100).toFixed(1) : 0}%)</div>
+                        <div className="mbu-card no-selection">
+                            <div className="mbu-value">
+                                {mbuCounts.noSelection.toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({mbuInteractionTotal ? ((mbuCounts.noSelection / mbuInteractionTotal) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
+                            <div className="mbu-label">MBU - No Selection</div>
                         </div>
-                        <div className="mbu-card no-selection" style={{ gridColumn: 'span 2' }}>
-                            <div className="mbu-value">{mbuCounts.noSelection.toLocaleString()}</div>
-                            <div className="mbu-label">No Selection ({mbuTotal ? ((mbuCounts.noSelection / mbuTotal) * 100).toFixed(1) : 0}%)</div>
+                        <div className="mbu-card failed-response" style={{ gridColumn: 'span 2' }}>
+                            <div className="mbu-value">
+                                {(campaignStats.failed || 0).toLocaleString()}
+                                <span style={{ fontSize: '0.9rem', marginLeft: '4px', opacity: 0.8 }}>
+                                    ({campaignActionBaseline ? ((campaignStats.failed / campaignActionBaseline) * 100).toFixed(1) : 0}%)
+                                </span>
+                            </div>
+                            <div className="mbu-label">Total Failed Campaign Messages</div>
                         </div>
                     </div>
                 </div>
@@ -620,7 +617,6 @@ export function DashboardPage({ data, userName }) {
                                 Total Schedule - Yes (100%)
                             </div>
                         </div>
-
                         <div className="mbu-card yes">
                             <div className="mbu-value">
                                 {activeReminderStats.sent.toLocaleString()}
@@ -730,7 +726,7 @@ export function DashboardPage({ data, userName }) {
                                         {isExpanded && dateGroup.details.map(reminder => (
                                             <tr key={reminder.id} className="detail-row" style={{ backgroundColor: '#dcdee0' }}>
                                                 <td style={{ paddingLeft: '40px' }}></td>
-                                                <td style={{ fontWeight: 500 }}>{reminder.templateid}</td>
+                                                <td style={{ fontWeight: 500 }}>{reminder.templateType}</td>
                                                 <td>{reminder.langcode}</td>
                                                 <td>{(reminder.total_count || 0).toLocaleString()}</td>
                                                 <td>{(reminder.sent || 0).toLocaleString()}</td>
