@@ -3,6 +3,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import { uploadCampaignCSV } from '../users/campaignApi'
 import { downloadCSVReport, getCampaignId } from '../users/reportsApi'
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
 
 export function ReportsPage() {
     const [campaignId, setCampaignId] = useState('')
@@ -229,7 +230,7 @@ export function ReportsPage() {
                     </div>
 
                     <div style={{ padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <label>Select Campaign</label>
                             <select
                                 className="filter-select"
@@ -245,7 +246,41 @@ export function ReportsPage() {
                                     </option>
                                 ))}
                             </select>
-                        </div>
+                        </div> */}
+
+                        <FormControl fullWidth size="small" sx={{
+                            "& .MuiOutlinedInput-root": {
+                                borderRadius: "12px",
+                            },
+                        }}>
+                            <InputLabel id="campaign-select-label">
+                                Select Campaign
+                            </InputLabel>
+
+                            <Select
+                                labelId="campaign-select-label"
+                                id="campaign-select"
+                                value={exportCampaignId}
+                                label="Select Campaign"
+                                onChange={(e) => setExportCampaignId(e.target.value)}
+                            >
+                                <MenuItem value="">
+                                    Select a Campaign
+                                </MenuItem>
+
+                                {campaigns.map((c) => (
+                                    <MenuItem
+                                        key={c.campaignid}
+                                        value={c.campaignid}
+                                    >
+                                        {c.campaignid}
+                                        {c.campaign_title
+                                            ? ` - ${c.campaign_title}`
+                                            : ""}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <button
                             className="header-btn"
