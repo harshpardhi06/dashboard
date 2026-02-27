@@ -230,24 +230,6 @@ export function ReportsPage() {
                     </div>
 
                     <div style={{ padding: '1rem 0', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                        {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <label>Select Campaign</label>
-                            <select
-                                className="filter-select"
-                                style={{ width: '100%', height: '42px' }}
-                                value={exportCampaignId}
-                                onChange={(e) => setExportCampaignId(e.target.value)}
-                            >
-                                <option value="">Select a Campaign</option>
-                                {campaigns.map(c => (
-                                    <option key={c.campaignid} value={c.campaignid}>
-                                        {c.campaignid}
-                                        {c.campaign_title ? ` - ${c.campaign_title}` : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div> */}
-
                         <FormControl fullWidth size="small" sx={{
                             "& .MuiOutlinedInput-root": {
                                 borderRadius: "12px",
