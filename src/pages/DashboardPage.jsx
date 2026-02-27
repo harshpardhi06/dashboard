@@ -12,13 +12,10 @@ import { StatCard } from '../components/StatCard'
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { getMBUResponseCounts, getScheduleStatusHistory } from '../users/scheduleApi'
 import { getCampaignReport } from '../users/campaignApi'
+import { TEMPLATE_TYPE_MAP } from '../config/constant';
 
-const TEMPLATE_TYPE_MAP = {
-    "331466": "Formal",
-    "9423678939789": "Informal",
-    "temp_201": "Formal",
-    "331470": "Informal",
-};
+
+
 
 export function DashboardPage({ userName }) {
     const [templateFilter, setTemplateFilter] = useState('All')
@@ -124,9 +121,6 @@ export function DashboardPage({ userName }) {
             console.error('Campaign Report API ERROR', error);
         }
     };
-
-
-
     useEffect(() => {
         fetchMBUResponseCounts();
         fetchCampaignReport();
