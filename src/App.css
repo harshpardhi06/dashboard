@@ -558,6 +558,13 @@
   margin-bottom: 0.5rem;
 }
 
+.card-info {
+  font-size: 14px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+
 .progress-label {
   font-size: 0.8125rem;
   color: var(--text-secondary);

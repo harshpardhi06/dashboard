@@ -1,6 +1,7 @@
 import axiosInstance from "../utils/axiosInstance";
 
 export async function downloadCSVReport(campaignId) {
+    debugger;
     try {
         const response = await axiosInstance.get(
             `/csv-reports/download-joined-report?campaignId=${campaignId}`,

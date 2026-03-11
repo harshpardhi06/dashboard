@@ -39,6 +39,7 @@ export function DashboardPage({ userName }) {
 
     // Fetch schedule status history and format language codes for display
     const fetchScheduleStatusCount = async () => {
+        debugger;
         try {
             const res = await getScheduleStatusHistory();
             if (res.success && Array.isArray(res.data)) {
@@ -62,7 +63,10 @@ export function DashboardPage({ userName }) {
                     return {
                         ...item,
                         langcode: displayLang,
-                        templateType
+                        templateType,
+                        stat_date: item.stat_date
+                            ? new Date(item.stat_date).toISOString().split('T')[0]
+                            : null
                     };
                 });
 
@@ -269,14 +273,35 @@ export function DashboardPage({ userName }) {
         return null
     }
 
+    // const filteredReminders = reminderHistory
+    //     .filter(reminder => {
+    //         if (reminderDateFilter && reminder.stat_date !== reminderDateFilter) return false
+    //         // Note: API data might not have language and templateName in the same way, 
+    //         // but we can filter by templateid if needed. For now, following the user's request for status values.
+    //         return true
+    //     })
+    //     .sort((a, b) => new Date(b.stat_date) - new Date(a.stat_date))
+
+
+
     const filteredReminders = reminderHistory
         .filter(reminder => {
-            if (reminderDateFilter && reminder.stat_date !== reminderDateFilter) return false
-            // Note: API data might not have language and templateName in the same way, 
-            // but we can filter by templateid if needed. For now, following the user's request for status values.
-            return true
+            if (!reminder.stat_date) return false;
+
+            const reminderDate = new Date(reminder.stat_date);
+            const now = new Date();
+
+            if (reminderDateFilter) {
+                return reminder.stat_date === reminderDateFilter;
+            }
+
+            // Default current month data
+            return (
+                reminderDate.getMonth() === now.getMonth() &&
+                reminderDate.getFullYear() === now.getFullYear()
+            );
         })
-        .sort((a, b) => new Date(b.stat_date) - new Date(a.stat_date))
+        .sort((a, b) => new Date(b.stat_date) - new Date(a.stat_date));
 
     // Group reminders by date
     const groupedReminders = filteredReminders.reduce((acc, reminder) => {
