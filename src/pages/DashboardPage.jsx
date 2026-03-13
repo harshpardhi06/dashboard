@@ -12,10 +12,7 @@ import { StatCard } from '../components/StatCard'
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { getMBUResponseCounts, getScheduleStatusHistory } from '../users/scheduleApi'
 import { getCampaignReport } from '../users/campaignApi'
-import { TEMPLATE_TYPE_MAP } from '../config/constant';
-
-
-
+import { CAMPAIGN_TEMPLATE_TYPE_MAP, SCHEDULAR_TEMPLATE_TYPE_MAP } from '../config/constant';
 
 export function DashboardPage({ userName }) {
     const [templateFilter, setTemplateFilter] = useState('All')
@@ -58,7 +55,7 @@ export function DashboardPage({ userName }) {
                     }
 
                     const templateType =
-                        TEMPLATE_TYPE_MAP[String(item.templateid)] || "Unknown";
+                        SCHEDULAR_TEMPLATE_TYPE_MAP[String(item.templateid)] || "Unknown";
 
                     return {
                         ...item,
@@ -90,6 +87,7 @@ export function DashboardPage({ userName }) {
                 failed: Number(res.data.failed) || 0,
                 total: Number(res.data.total) || 0,
             })
+            console.log(res, "MBU")
         } catch (error) {
             console.error('MBU API ERROR', error)
         }
@@ -111,7 +109,7 @@ export function DashboardPage({ userName }) {
                     displayLang = 'English';
                 }
                 const templateType =
-                    TEMPLATE_TYPE_MAP[String(c.templateid)] || "Unknown";
+                    CAMPAIGN_TEMPLATE_TYPE_MAP[String(c.templateid)] || "Unknown";
 
                 return {
                     ...c,
